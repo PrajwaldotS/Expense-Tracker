@@ -28,7 +28,7 @@ export default function CategoriesPage() {
         .single()
 
       if (error || data?.role !== 'admin') {
-        router.push('/dashboard') // Not admin → send away
+        router.push('/Dashboard') // Not admin → send away
       }
     }
 

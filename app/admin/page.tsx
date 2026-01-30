@@ -29,7 +29,7 @@ export default function AdminDashboard() {
         .single()
 
       if (data?.role !== 'admin') {
-        router.push('/dashboard')
+        router.push('/Dashboard')
       }
     }
 

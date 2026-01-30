@@ -14,4 +14,4 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   return <>{children}</>
 }
-// when someone tried to access any page this function directly routes them into login page 
+// when someone tried to access any page without login  this function directly routes them into login page 
