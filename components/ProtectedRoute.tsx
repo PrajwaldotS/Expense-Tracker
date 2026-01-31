@@ -8,7 +8,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) router.push('/login')
+      if (!data.user) router.push('/')
     })
   }, [])
 

@@ -8,8 +8,9 @@ export default function Dashboard() {
     <ProtectedRoute>
     <h2>My Expenses</h2>
     <ExpenseTable />
-    </ProtectedRoute>
+    
     <LogoutButton/>
+    </ProtectedRoute>
     </div>
   )
 }
