@@ -10,6 +10,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import Link from 'next/link'
+import { Separator } from './ui/separator'
 
 export function AppSidebar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -51,29 +52,34 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-4 py-2 text-lg font-semibold">
+      <SidebarHeader className="px-4 py-2 text-lg font-semibold text-center">
         Expense Tracker
       </SidebarHeader>
-
+        <Separator />
       <SidebarContent>
         <SidebarGroup>
           <Link href="/Dashboard" className="block px-4 py-2 hover:bg-muted rounded-md">
             Dashboard
           </Link>
-
-          <Link href="/add-expense" className="block px-4 py-2 hover:bg-muted rounded-md">
-            Add Expense
-          </Link>
         </SidebarGroup>
 
         {role === 'admin' && (
           <SidebarGroup>
-            <Link href="/admin" className="block px-4 py-2 hover:bg-muted rounded-md">
-              Admin Dashboard
+            <Link href="/admin/users" className="block px-4 py-2 hover:bg-muted rounded-md">
+              User Based Expenses
             </Link>
 
             <Link href="/admin/categories" className="block px-4 py-2 hover:bg-muted rounded-md">
-              Manage Categories
+              Categories Based Expenses
+            </Link>
+            <Link href="/add-expense" className="block px-4 py-2 hover:bg-muted rounded-md">
+              Add Expenses
+            </Link>
+            <Link href="/add-categories" className="block px-4 py-2 hover:bg-muted rounded-md">
+              Add Categories
+            </Link>
+            <Link href="/admin/manage-expenses" className="block px-4 py-2 hover:bg-muted rounded-md">
+              Manage Expenses
             </Link>
           </SidebarGroup>
         )}

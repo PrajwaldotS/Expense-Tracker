@@ -24,13 +24,12 @@ export default function ExpenseForm() {
     if (error) setMsg(error.message)
     else setMsg('Expense added!')
   }
-
   return (
-    <div>
-      <CategorySelect value={categoryId} onChange={setCategoryId} />
-      <input placeholder="Amount" onChange={e => setAmount(e.target.value)} />
-      <input placeholder="Description" onChange={e => setDesc(e.target.value)} />
-      <button onClick={addExpense}>Add Expense</button>
+    <div className='grid grid-cols-1 gap-4 justify-center my-20 w-[50%] bg-black/10 p-6 rounded-md'>
+      <CategorySelect value={categoryId} onChange={setCategoryId}  />
+      <input placeholder="Amount" onChange={e => setAmount(e.target.value)} className='bg-white p-2 rounded-md' />
+      <input placeholder="Description" onChange={e => setDesc(e.target.value)} className='bg-white p-2 rounded-md' />
+      <button onClick={addExpense} className='bg-blue-500 text-white p-2 rounded-md'>Add Expense</button>
       <p>{msg}</p>
     </div>
   )

@@ -9,7 +9,7 @@ export default function Dashboard() {
     <h2>My Expenses</h2>
     <ExpenseTable />
     
-    <LogoutButton/>
+  
     </ProtectedRoute>
     </div>
   )

@@ -12,11 +12,13 @@ export default function CategorySelect({ value, onChange }) {
   }, [])
 
   return (
-    <select value={value} onChange={e => onChange(e.target.value)}>
+    <div className='bg-white p-2 rounded-md'>
+      <select value={value} onChange={e => onChange(e.target.value)}>
       <option value="">Select Category</option>
       {categories.map((c: any) => (
         <option key={c.id} value={c.id}>{c.name}</option>
       ))}
     </select>
+    </div>
   )
 }
