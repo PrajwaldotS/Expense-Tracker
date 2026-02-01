@@ -1,15 +1,25 @@
 'use client'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { MoreHorizontalIcon } from 'lucide-react'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
+import { Separator } from '@/components/ui/separator'
 
 export default function AdminUsersPage() {
   const router = useRouter()
   const [users, setUsers] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  // 🔒 Protect admin route
   useEffect(() => {
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -21,10 +31,9 @@ export default function AdminUsersPage() {
         .eq('id', user.id)
         .single()
 
-      if (data?.role !== 'admin') router.push('/dashboard')
+      if (data?.role !== 'admin') router.push('/Disableashboard')
       else fetchUsers()
     }
-
     checkAdmin()
   }, [router])
 
@@ -48,6 +57,46 @@ export default function AdminUsersPage() {
     alert('Password updated')
   }
 
+  const deleteUser = async (id: string) => {
+    if (!confirm('Delete this user?')) return
+
+    await fetch('/api/admin/delete-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: id }),
+    })
+
+    fetchUsers()
+  }
+
+  const toggleDisable = async (u: any) => {
+    await fetch('/api/admin/update-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: u.id,
+        name: u.user_metadata?.name || u.email.split('@')[0],
+        role: 'user',
+        disabled: !u.banned_until
+      }),
+    })
+    fetchUsers()
+  }
+
+  const editUser = async (u: any) => {
+    const name = prompt('Enter new name', u.user_metadata?.name || '')
+    const role = prompt('Enter role (admin/user)', 'user')
+    if (!name || !role) return
+
+    await fetch('/api/admin/update-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: u.id, name, role, disabled: !!u.banned_until }),
+    })
+
+    fetchUsers()
+  }
+
   if (loading) return <p className="p-6">Loading users...</p>
 
   return (
@@ -59,10 +108,10 @@ export default function AdminUsersPage() {
           <tr>
             <th>Name</th>
             <th>Email</th>
-            <th>Created At</th>
+            <th>Created</th>
             <th>Last Login</th>
             <th>Status</th>
-            <th>Reset Password</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -71,21 +120,24 @@ export default function AdminUsersPage() {
               <td>{u.user_metadata?.name || u.email.split('@')[0]}</td>
               <td>{u.email}</td>
               <td>{new Date(u.created_at).toLocaleDateString()}</td>
-              <td>
-                {u.last_sign_in_at
-                  ? new Date(u.last_sign_in_at).toLocaleString()
-                  : 'Never'}
-              </td>
-              <td>
-                {u.banned_until ? 'Disabled' : 'Active'}
-              </td>
-              <td>
-                <button
-                  onClick={() => resetPassword(u.id)}
-                  className="bg-blue-500 text-white px-2 py-1 rounded"
-                >
-                  Reset
-                </button>
+              <td>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString() : 'Never'}</td>
+              <td>{u.banned_until ? 'Disabled' : 'Active'}</td>
+              <td className="flex justify-center gap-2 py-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="p-0">
+                      <MoreHorizontalIcon className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-32">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => editUser(u)}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => resetPassword(u.id)}>Reset Password</DropdownMenuItem>
+                    <Separator/>
+                    <DropdownMenuItem onClick={() => deleteUser(u.id)} className='text-red-600'>Delete User</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </td>
             </tr>
           ))}

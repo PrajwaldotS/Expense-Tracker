@@ -95,10 +95,10 @@ const fetchTotalSpent = async () => {
   return (
     
     <div className='grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-1 justify-center my-20'>
-    <div className='h-[20dvh]  bg-gray-200 rounded-xl'>
+    <div className='h-[20dvh]  bg-gray-200 rounded-xl mx-6'>
       <h1 className='text-3xl text-center mt-8 text-black'>Total Amount By the Users <br /> ₹{totalSpent}</h1>
     </div>
-     <Table>
+     <Table className='m-5 overflow-hidden border-2 w-[95%]'>
       <TableHeader>
         <TableRow>
           <TableHead>User No</TableHead>

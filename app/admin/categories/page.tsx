@@ -65,7 +65,7 @@ useEffect(() => {
    if (loading) return <p>Loading... insights</p>
   return (
     <div className="grid grid-cols-1 gap-4 justify-center my-20">
-      <div className='h-[20dvh] bg-gray-200 rounded-xl'>
+      <div className='h-[20dvh] bg-gray-200 rounded-xl mx-6'>
         <h1 className="text-2xl font-bold text-center mt-8">Total Amount Based on Categories <br />
         ₹ {totalSpent}</h1>
       </div>
