@@ -54,7 +54,7 @@ export default function Navbar() {
   if (loading) return null
 
   return (
-   <nav className="fixed w-[84%] h-16 bg-white/70 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-50">
+   <nav className="fixed w-full h-16 bg-white/70 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-50">
   
   <div className="flex items-center gap-4">
     <SidebarTrigger className="p-2 rounded-md hover:bg-gray-200 transition" />

@@ -45,15 +45,12 @@ export default function RootLayout({
             {/* Sidebar only if logged in */}
             <AuthGate>
               <AppSidebar />
+              <Navbar />
             </AuthGate>
 
-            <main className="w-full min-h-screen">
-              
-              {/* Navbar always visible */}
-              <Navbar />
-        <div className="px-6 py-4">{children}</div>
+            <main className="w-full min-h-screen">       
+        <div className="">{children}</div>
             </main>
-
           </SidebarProvider>
         </ThemeProvider>
       </body>

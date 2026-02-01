@@ -25,7 +25,7 @@ export default function ExpenseForm() {
     else setMsg('Expense added!')
   }
   return (
-    <div className='grid grid-cols-1 gap-4 justify-center my-20 w-[50%] bg-black/10 p-6 rounded-md'>
+    <div className='grid grid-cols-1 gap-4 justify-center  mt-10 w-[50%] bg-black/10 p-6 rounded-md'>
       <CategorySelect value={categoryId} onChange={setCategoryId}  />
       <input placeholder="Amount" onChange={e => setAmount(e.target.value)} className='bg-white p-2 rounded-md' />
       <input placeholder="Description" onChange={e => setDesc(e.target.value)} className='bg-white p-2 rounded-md' />

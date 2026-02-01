@@ -51,17 +51,12 @@ export function AppSidebar() {
   if (!isLoggedIn) return null
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="px-4 py-2 text-lg font-semibold text-center">
+    <Sidebar collapsible="icon" className=''>
+      <SidebarHeader className="px-4 py-2 text-lg font-semibold  mt-15">
         Expense Tracker
       </SidebarHeader>
         <Separator />
       <SidebarContent>
-        <SidebarGroup>
-          <Link href="/Dashboard" className="block px-4 py-2 hover:bg-muted rounded-md">
-            Dashboard
-          </Link>
-        </SidebarGroup>
 
         {role === 'admin' && (
           <SidebarGroup>
@@ -81,8 +76,22 @@ export function AppSidebar() {
             <Link href="/admin/manage-expenses" className="block px-4 py-2 hover:bg-muted rounded-md">
               Manage Expenses
             </Link>
+            <Link href="/admin/manage-users" className="block px-4 py-2 hover:bg-muted rounded-md">
+              Manage Users
+            </Link>
           </SidebarGroup>
         )}
+        {role === 'user' &&(
+          <SidebarGroup>
+            <Link href="/Dashboard" className="block px-4 py-2 hover:bg-muted rounded-md">
+              My Expenses
+            </Link>
+             <Link href="/add-expense" className="block px-4 py-2 hover:bg-muted rounded-md">
+              Add Expenses
+            </Link>
+          </SidebarGroup>
+        )}
+       
       </SidebarContent>
 
       <SidebarFooter className="p-4 text-xs text-muted-foreground">
