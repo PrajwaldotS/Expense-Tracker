@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
+import ProtectedRoute from '@/components/ProtectedRoute'
 
 
 export default function ExpenseTable() {
@@ -105,7 +106,8 @@ export default function ExpenseTable() {
   }
 
   return (
-    <div className="w-4/5 mx-auto mt-18">
+    <ProtectedRoute>
+      <div className="w-4/5 mx-auto mt-18">
       <h1 className="text-2xl font-bold mb-2">Manage Expenses</h1>
 
       {/* Filters */}
@@ -133,8 +135,9 @@ export default function ExpenseTable() {
 
       {/* Table */}
       <Table className="border rounded-xl">
-        <TableHeader>
+        <TableHeader className='bg-gray-200'>
           <TableRow>
+           
             <TableHead>Amount</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Description</TableHead>
@@ -145,7 +148,8 @@ export default function ExpenseTable() {
         <TableBody>
           {expenses.map((e) => (
             <TableRow key={e.id}>
-              <TableCell>₹{e.amount}</TableCell>
+              
+              <TableCell>₹{e.amount.toLocaleString('en-IN')}</TableCell>
               <TableCell>{e.categories?.name}</TableCell>
               <TableCell>{e.description}</TableCell>
               <TableCell>{new Date(e.expense_date).toLocaleDateString()}</TableCell>
@@ -228,5 +232,6 @@ export default function ExpenseTable() {
         </DialogContent>
       </Dialog>
     </div>
+    </ProtectedRoute>
   )
 }

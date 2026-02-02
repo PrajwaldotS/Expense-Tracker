@@ -96,7 +96,7 @@ const fetchTotalSpent = async () => {
     
     <div className='grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-1 justify-center my-20'>
     <div className='h-[20dvh]  bg-gray-200 rounded-xl'>
-      <h1 className='text-3xl text-center mt-4 text-black'>Total Amount By the Users <br /> ₹{totalSpent}</h1>
+      <h1 className='text-3xl text-center mt-4 text-black'>Total Amount By the Users <br /> ₹{totalSpent.toLocaleString('en-IN')}</h1>
     </div>
     <div className='grid grid-cols-1 gap-4 justify-center my-20'>
       <div className="h-[40dvh] bg-gray-200 rounded-xl">
@@ -104,7 +104,7 @@ const fetchTotalSpent = async () => {
       <div className='flex flex-wrap justify-center gap-4 p-4'>
         {categoryTotals.map((c: any) => (
           <div key={c.category_id} className='text-black h-10 my-8  m-4 flex items-center justify-between rounded-lg'>
-            <h2 className="text-xl bg-black/10 p-4 rounded">{c.name} <br /> ₹{c.total} </h2>
+            <h2 className="text-xl bg-black/10 p-4 rounded">{c.name} <br /> ₹{c.total.toLocaleString('en-IN')} </h2>
             
           </div>
         ))}

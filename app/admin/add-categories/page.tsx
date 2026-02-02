@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
+import ProtectedRoute from '@/components/ProtectedRoute'
 
 export default function CategoriesPage() {
   const router = useRouter()
@@ -27,7 +28,7 @@ export default function CategoriesPage() {
         .single()
 
       if (data?.role !== 'admin') {
-        router.push('/dashboard')
+        router.push('/Dashboard')
       } else {
         setLoading(false)
       }
@@ -60,13 +61,14 @@ export default function CategoriesPage() {
   if (loading) return <p className="p-6">Loading...</p>
 
   return (
-    <div className="max-w-md mx-auto mt-20 bg-white shadow-lg rounded-xl p-6">
-      <h2 className="text-2xl font-semibold mb-4 text-center">
+   <ProtectedRoute>
+       <div className="max-w-md mx-5 mt-20 bg-black/10 shadow-lg rounded-md  p-6">
+      <h2 className="text-3xl font-bold mb-6 text-center">
         Add New Category
       </h2>
 
       <input
-        className="w-full border rounded-lg px-4 py-2 mb-4"
+        className="w-full border bg-white rounded-md px-4 py-2 mb-4"
         placeholder="Category name"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -74,7 +76,7 @@ export default function CategoriesPage() {
 
       <button
         onClick={addCategory}
-        className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition"
+        className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
       >
         Add Category
       </button>
@@ -83,5 +85,6 @@ export default function CategoriesPage() {
         <p className="mt-4 text-center text-sm text-gray-700">{msg}</p>
       )}
     </div>
+    </ProtectedRoute>
   )
 }

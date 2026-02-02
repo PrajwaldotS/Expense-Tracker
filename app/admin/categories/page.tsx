@@ -1,94 +1,159 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabaseClient'
-import { useRouter } from 'next/navigation'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
+
 export default function CategoriesPage() {
-  const router = useRouter()
-const [totalSpent, setTotalSpent] = useState(0)
-const [categoryTotals, setCategoryTotals] = useState<[string, number][]>([])
-  const [loading, setLoading] = useState(false)
+  const [totalSpent, setTotalSpent] = useState(0)
+  const [categoryTotals, setCategoryTotals] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(5)
 
-      if (!user) {
-        router.push('/login')
-        return
-      }
+  useEffect(() => {
+    fetchTotals()
+  }, [])
 
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .order('created_at', { ascending: false })
-        .single()
+  const fetchTotals = async () => {
+    const { data: totals, error } = await supabase
+      .from('admin_category_expense_totals')
+      .select('*')
 
-      if (data?.role !== 'admin') {
-        router.push('/Dashboard')
-      }
+    if (error) {
+      console.error(error.message)
+      setLoading(false)
+      return
     }
 
-    checkAdmin()
-  }, [router])
- const fetchCategoryTotals = async () => {
-  const { data,error } = await supabase
-    .from('admin_category_expense_totals')
-    .select('*')
+    const { data: expenses } = await supabase.from('expenses').select('amount')
 
-  if (error) {
-    console.error('Category totals error:', error.message)
-    return
+    const total = expenses?.reduce((sum, e) => sum + e.amount, 0) || 0
+
+    setTotalSpent(total)
+    setCategoryTotals(totals || [])
+    setLoading(false)
   }
 
-  setCategoryTotals(data || [])
-}
-  const fetchTotalSpent = async () => {
-  const { data, error } = await supabase
-    .from('expenses')
-    .select('amount')
+  // 🔍 Search filter
+  const filteredCategories = useMemo(() => {
+    return categoryTotals.filter((c) =>
+      c.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [categoryTotals, search])
 
-  if (error) {
-    console.error(error.message)
-    return
-  }
+  // 📄 Pagination logic
+  const totalPages = Math.max(1, Math.ceil(filteredCategories.length / pageSize))
+  const paginatedCategories = filteredCategories.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  )
 
-  const total = data.reduce((sum, e) => sum + e.amount, 0)
-  setTotalSpent(total)
-}
-useEffect(() => {
-    fetchTotalSpent()
-    fetchCategoryTotals()
-  }, [])
-   if (loading) return <p>Loading... insights</p>
+  useEffect(() => {
+    if (page > totalPages) setPage(1)
+  }, [totalPages, page])
+
+  if (loading) return <p className="p-6">Loading category insights...</p>
+
   return (
-    <div className="grid grid-cols-1 gap-4 justify-center my-20">
-      <div className='h-[20dvh] bg-gray-200 rounded-xl mx-6'>
-        <h1 className="text-2xl font-bold text-center mt-8">Total Amount Based on Categories <br />
-        ₹ {totalSpent}</h1>
+    <ProtectedRoute >
+      <div className="grid grid-cols-1 gap-4 justify-center my-20">
+
+        {/* 💰 Total Expense */}
+        <div className="h-[20dvh] bg-gray-200 rounded-xl mx-6 flex items-center justify-center">
+          <h1 className="text-3xl font-bold text-center">
+            Total Amount Based on Categories <br /> ₹ {totalSpent.toLocaleString('en-IN')}
+          </h1>
+        </div>
+
+        {/* 🔍 Search */}
+        <div className="mx-6">
+          <input
+            type="text"
+            placeholder="Search category..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            className="mb-4 w-full max-w-sm px-3 py-2 border rounded-md"
+          />
+        </div>
+
+        {/* 📊 Table */}
+        <Table className="border m-5 w-[95%]">
+          <TableHeader>
+            <TableRow className='bg-gray-200'>
+              <TableHead>No</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Total Expense</TableHead>
+              <TableHead>Last Expense Date</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {paginatedCategories.map((c, index) => (
+              <TableRow key={c.category_id}>
+                <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
+                <TableCell>{c.name}</TableCell>
+                <TableCell>₹{c.total.toLocaleString('en-IN')}</TableCell>
+                <TableCell>
+                  {c.last_expense_date
+                    ? new Date(c.last_expense_date).toLocaleDateString()
+                    : 'N/A'}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        {/* 📄 Pagination */}
+        <div className="flex justify-between items-center mx-6 mt-4">
+          <div className="flex gap-2">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(p => p - 1)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            <span>Page {page} of {totalPages}</span>
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(p => p + 1)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value))
+              setPage(1)
+            }}
+            className="border rounded px-3 py-2"
+          >
+            <option value={5}>5 / page</option>
+            <option value={10}>10 / page</option>
+            <option value={20}>20 / page</option>
+          </select>
+        </div>
+
       </div>
-        <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>User No</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Total Expense</TableHead>
-          <TableHead>Date</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {categoryTotals.map((c: any, index: number) => (
-          <TableRow key={c.category_id}>
-            <TableCell>{index + 1}</TableCell>
-            <TableCell>{c.name}</TableCell>
-            <TableCell>₹{c.total}</TableCell>
-            <TableCell>{c.last_expense_date? new Date(c.last_expense_date).toLocaleDateString(): 'N/A'}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-    </div>
+    </ProtectedRoute>
   )
 }

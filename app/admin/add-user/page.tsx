@@ -1,4 +1,5 @@
 'use client'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import { useState } from 'react'
 
 export default function CreateUserPage() {
@@ -20,34 +21,36 @@ export default function CreateUserPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 bg-white shadow rounded-xl">
-      <h2 className="text-xl font-semibold mb-4">Create New User</h2>
+    <ProtectedRoute>
+      <div className="max-w-md mx-5 mt-20 p-6 bg-black/10 shadow-lg rounded-md">
+      <h2 className="text-3xl font-bold mb-4 text-center">Create New User</h2>
 
       <input
-        className="border w-full p-2 mb-2"
+        className="border w-full p-2 mb-2 bg-white rounded-md"
         placeholder="Name"
         onChange={(e) => setName(e.target.value)}
       />
       <input
-        className="border w-full p-2 mb-2"
+        className="border w-full p-2 mb-2 bg-white rounded-md"
         placeholder="Email"
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"
-        className="border w-full p-2 mb-4"
+        className="border w-full p-2 mb-4 bg-white rounded-md"
         placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
       />
 
       <button
         onClick={createUser}
-        className="bg-purple-600 text-white w-full py-2 rounded"
+        className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600"
       >
         Create User
       </button>
 
       {msg && <p className="mt-3 text-center">{msg}</p>}
     </div>
+    </ProtectedRoute>
   )
 }

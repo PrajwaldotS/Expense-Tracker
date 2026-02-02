@@ -25,11 +25,12 @@ export default function ExpenseForm() {
     else setMsg('Expense added!')
   }
   return (
-    <div className='grid grid-cols-1 gap-4 justify-center  mt-10 w-[50%] bg-black/10 p-6 rounded-md shadow-lg'>
+    <div className='mt-20 grid grid-cols-1 gap-4 justify-center  w-[50%] bg-black/10 p-6 rounded-md shadow-lg'>
+      <h2 className=' text-center text-3xl font-bold'>Add Expense</h2>
       <CategorySelect value={categoryId} onChange={setCategoryId}  />
       <input placeholder="Amount" onChange={e => setAmount(e.target.value)} className='bg-white p-2 rounded-md' />
       <input placeholder="Description" onChange={e => setDesc(e.target.value)} className='bg-white p-2 rounded-md' />
-      <button onClick={addExpense} className='bg-blue-500 text-white p-2 rounded-md'>Add Expense</button>
+      <button onClick={addExpense} className='bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-md'>Add Expense</button>
       <p>{msg}</p>
     </div>
   )
