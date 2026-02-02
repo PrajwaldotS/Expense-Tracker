@@ -95,14 +95,14 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 gap-4 justify-center my-20 mx-auto w-4/5">
 
         {/* 💰 Total Expense Card */}
-        <div className="h-[20dvh] bg-gray-200 rounded-xl mx-6 flex items-center justify-center">
+        <div className="h-[20dvh] bg-gray-200 rounded-xl  flex items-center justify-center">
           <h1 className="text-3xl text-center font-bold text-black">
             Total Amount By All Users <br /> ₹{totalSpent.toLocaleString('en-IN')}
           </h1>
         </div>
 
         {/* 🔍 Search */}
-        <div className="mx-6">
+        <div className="">
           <input
             type="text"
             placeholder="Search user..."
