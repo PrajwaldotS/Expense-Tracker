@@ -1,4 +1,5 @@
 'use client'
+
 import Logout from './Logout'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
@@ -12,8 +13,10 @@ import {
 } from "@/components/ui/sidebar"
 import Link from 'next/link'
 import { Separator } from './ui/separator'
+import { usePathname } from 'next/navigation'
 
 export function AppSidebar() {
+  const pathname = usePathname()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [role, setRole] = useState<string | null>(null)
 
@@ -51,82 +54,86 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      {role === 'admin' && (
-        <SidebarHeader className="mt-18">
-          <h2 className="text-lg font-bold">Admin Panel</h2>
-          <Separator className="" />
-        </SidebarHeader>
-      )}
-      {role === 'user' && (
-        <SidebarHeader className="mt-18">
-          <h2 className="text-lg font-bold">User Panel</h2>
-          <Separator className="" />
-        </SidebarHeader>
-      )}
+      
+      {/* HEADER */}
+      <SidebarHeader className="mt-18">
+        <h2 className="text-lg font-bold">
+          {role === 'admin' ? 'Admin Panel' : 'User Panel'}
+        </h2>
+        <Separator />
+      </SidebarHeader>
 
+      {/* CONTENT */}
       <SidebarContent>
 
         {role === 'admin' && (
           <>
-            {/* ➕ ADD SECTION */}
             <SidebarGroup>
               <SidebarMenuButton className="font-semibold">Add Section</SidebarMenuButton>
-              <Link href="/admin/add-expense" className="block px-4 py-2 hover:bg-muted active:bg-muted rounded-md">
-                Add Expenses
-              </Link>
-              <Link href="/admin/add-categories" className="block px-4 py-2 hover:bg-muted rounded-md">
-                Add Categories
-              </Link>
-              <Link href="/admin/add-user" className="block px-4 py-2 hover:bg-muted rounded-md">
-                Add Users
-              </Link>
+              <NavItem href="/admin/add-expense" label="Add Expenses" pathname={pathname} />
+              <NavItem href="/admin/add-categories" label="Add Categories" pathname={pathname} />
+              <NavItem href="/admin/add-user" label="Add Users" pathname={pathname} />
             </SidebarGroup>
 
-            {/* ⚙️ MANAGEMENT SECTION */}
             <SidebarGroup>
               <SidebarMenuButton className="font-semibold">Management</SidebarMenuButton>
-              <Link href="/admin/manage-expenses" className="block px-4 py-2 hover:bg-muted rounded-md">
-                Manage Expenses
-              </Link>
-              <Link href="/admin/manage-users" className="block px-4 py-2 hover:bg-muted rounded-md">
-                Manage Users
-              </Link>
+              <NavItem href="/admin/manage-expenses" label="Manage Expenses" pathname={pathname} />
+              <NavItem href="/admin/manage-users" label="Manage Users" pathname={pathname} />
             </SidebarGroup>
 
-            {/* 📊 REPORTS SECTION */}
             <SidebarGroup>
               <SidebarMenuButton className="font-semibold">Reports</SidebarMenuButton>
-              <Link href="/admin/users" className="block px-4 py-2 hover:bg-muted rounded-md">
-                User Based Expenses
-              </Link>
-              <Link href="/admin/categories" className="block px-4 py-2 hover:bg-muted rounded-md">
-                Categories Based Expenses
-              </Link>
+              <NavItem href="/admin/users" label="User Based Expenses" pathname={pathname} />
+              <NavItem href="/admin/categories" label="Categories Based Expenses" pathname={pathname} />
             </SidebarGroup>
           </>
         )}
 
         {role === 'user' && (
           <SidebarGroup>
-            <Link href="/Dashboard" className="block px-4 py-2 hover:bg-muted rounded-md">
-              My Expenses
-            </Link>
-            <Link href="/admin/add-expense" className="block px-4 py-2 hover:bg-muted rounded-md">
-              Add Expenses
-            </Link>
+            <NavItem href="/Dashboard" label="My Expenses" pathname={pathname} />
+            <NavItem href="/admin/add-expense" label="Add Expenses" pathname={pathname} />
           </SidebarGroup>
         )}
-        <Link href='/changes-password' className="block mb-2 py-2 px-4 hover:bg-muted rounded-md">
-          Change Password
-        </Link>
+
+        <SidebarGroup>
+          <NavItem href="/change-password" label="Change Password" pathname={pathname} />
+        </SidebarGroup>
 
       </SidebarContent>
 
-      <SidebarFooter className="p-4 text-center  text-muted-foreground">
-        
+      {/* FOOTER */}
+      <SidebarFooter className="p-4 text-center text-muted-foreground">
         Logged in as {role}
         {isLoggedIn && <Logout />}
       </SidebarFooter>
     </Sidebar>
+  )
+}
+
+
+/* 🔹 Active Link Component */
+function NavItem({
+  href,
+  label,
+  pathname,
+}: {
+  href: string
+  label: string
+  pathname: string
+}) {
+  const isActive = pathname.startsWith(href)
+
+  return (
+    <Link
+      href={href}
+      className={`block px-4 py-2 rounded-md transition-all
+        ${isActive
+          ? 'bg-blue-600 text-white shadow-md'
+          : 'hover:bg-muted text-muted-foreground'
+        }`}
+    >
+      {label}
+    </Link>
   )
 }
