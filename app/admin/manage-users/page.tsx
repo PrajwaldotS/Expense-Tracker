@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { supabase } from '@/lib/supabaseClient'
 

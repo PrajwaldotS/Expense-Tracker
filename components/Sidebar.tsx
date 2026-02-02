@@ -116,7 +116,7 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
-        <Link href='changes-password' className="block mb-2 py-2 px-4 hover:bg-muted rounded-md">
+        <Link href='/changes-password' className="block mb-2 py-2 px-4 hover:bg-muted rounded-md">
           Change Password
         </Link>
 

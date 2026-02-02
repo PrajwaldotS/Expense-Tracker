@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+
+
 
 @theme inline {
   --color-background: var(--background);
@@ -122,4 +123,20 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+.glass-panel {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 40px rgba(47, 107, 255, 0.08);
+}
+
+.hud-border {
+  border: 1px solid rgba(47, 107, 255, 0.4);
+  box-shadow: 0 0 12px rgba(47, 107, 255, 0.25);
+}
+
+.text-finance {
+  font-family: 'Space Mono', monospace;
+  letter-spacing: 0.04em;
 }
