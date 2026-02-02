@@ -92,7 +92,7 @@ export default function AdminDashboard() {
 
   return (
     <ProtectedRoute >
-      <div className="grid grid-cols-1 gap-4 justify-center my-20">
+      <div className="grid grid-cols-1 gap-4 justify-center my-20 mx-auto w-4/5">
 
         {/* 💰 Total Expense Card */}
         <div className="h-[20dvh] bg-gray-200 rounded-xl mx-6 flex items-center justify-center">
@@ -116,7 +116,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* 📊 User Totals Table */}
-        <Table className="m-5 overflow-hidden border-2 w-[95%]">
+       <div className=" rounded-lg border">
+         <Table className="">
           <TableHeader>
             <TableRow className='bg-gray-200'>
               <TableHead>User No</TableHead>
@@ -142,6 +143,7 @@ export default function AdminDashboard() {
           </TableBody>
         </Table>
 
+       </div>
         {/* 📄 Pagination Controls */}
         <div className="flex justify-between items-center mx-6 mt-4">
           <div className="flex gap-2">

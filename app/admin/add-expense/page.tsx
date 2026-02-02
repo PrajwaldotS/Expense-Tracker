@@ -5,7 +5,7 @@ export default function AddExpensePage() {
   
   return (
     <ProtectedRoute>
-      <div className="ml-5 ">
+      <div className="">
         <ExpenseForm />
       </div>
     </ProtectedRoute>

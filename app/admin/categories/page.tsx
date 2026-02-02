@@ -90,10 +90,10 @@ export default function CategoriesPage() {
 
   return (
     <ProtectedRoute >
-      <div className="grid grid-cols-1 gap-4 justify-center my-20">
+      <div className="grid grid-cols-1 gap-4 justify-center my-20 mx-auto w-4/5">
 
         {/* 💰 Total Expense */}
-        <div className="h-[20dvh] bg-gray-200 rounded-xl mx-6 flex items-center justify-center">
+        <div className="h-[24dvh] bg-gray-200 rounded-xl mx-6 flex items-center justify-center">
           <h1 className="text-3xl font-bold text-center">
             Total Amount Based on Categories <br /> ₹ {totalSpent.toLocaleString('en-IN')}
           </h1>
@@ -114,7 +114,8 @@ export default function CategoriesPage() {
         </div>
 
         {/* 📊 Table */}
-        <Table className="border m-5 w-[95%]">
+        <div className="rounded-lg border">
+          <Table className="">
           <TableHeader>
             <TableRow className='bg-gray-200'>
               <TableHead>No</TableHead>
@@ -139,6 +140,7 @@ export default function CategoriesPage() {
             ))}
           </TableBody>
         </Table>
+        </div>
 
         {/* 📄 Pagination */}
         <div className="flex justify-between items-center mx-6 mt-4">

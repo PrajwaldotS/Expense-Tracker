@@ -94,12 +94,12 @@ const fetchTotalSpent = async () => {
 
   return (
     
-    <div className='grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-1 justify-center my-20'>
-      <h1 className='text-3xl font-bold text-center'>Expenses Report</h1>
+    <div className=' my-20'>
+      <h1 className='text-3xl text-center font-bold mb-4'>Admin Dashboard</h1>
     <div className='lg:h-[15dvh] h-[20dvh] mx-5 bg-gray-200 rounded-xl'>
       <h1 className='text-3xl text-center mt-4 text-black'>Total Amount By the Users <br /> ₹{totalSpent.toLocaleString('en-IN')}</h1>
     </div>
-    <div className='grid grid-cols-1 gap-4 justify-center my-20'>
+    <div className='grid grid-cols-1 gap-4 justify-center my-4'>
       <div className="h-full mx-5 bg-gray-200 rounded-xl">
       <h2 className='text-3xl text-center mt-4 text-black'>Total Expense Per Category</h2>
       <div className='flex flex-wrap justify-center gap-4 p-4'>

@@ -24,6 +24,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MoreHorizontalIcon } from 'lucide-react'
 
+/* ✅ SHADCN TABLE IMPORTS */
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+
 export default function AdminUsersPage() {
   const router = useRouter()
   const [users, setUsers] = useState<any[]>([])
@@ -43,26 +53,28 @@ export default function AdminUsersPage() {
     fetchUsers()
     checkAdmin()
   }, [router])
-const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
 
-      if (!user) {
-        router.push('/login')
-        return
-      }
+  const checkAdmin = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
 
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      if (data?.role !== 'admin') {
-        router.push('/Dashboard')
-      } else {
-        setLoading(false)
-      }
+    if (!user) {
+      router.push('/login')
+      return
     }
+
+    const { data } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (data?.role !== 'admin') {
+      router.push('/Dashboard')
+    } else {
+      setLoading(false)
+    }
+  }
+
   const fetchUsers = async () => {
     const res = await fetch('/api/admin/user')
     const data = await res.json()
@@ -121,24 +133,21 @@ const checkAdmin = async () => {
     fetchUsers()
   }
 
-  // 🔍 Search filter
   const filteredUsers = users.filter((u) =>
     (u.user_metadata?.name || u.email.split('@')[0]).toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   )
 
-  // 📄 Pagination
   const totalPages = Math.ceil(filteredUsers.length / pageSize)
   const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize)
 
   if (loading) return <p className="p-6">Loading users...</p>
 
   return (
-    <ProtectedRoute >
+    <ProtectedRoute>
       <div className="w-4/5 mx-auto mt-18">
         <h2 className="text-2xl font-bold mb-4">All Users</h2>
 
-        {/* 🔍 Search */}
         <input
           type="text"
           placeholder="Search by name or email..."
@@ -150,52 +159,71 @@ const checkAdmin = async () => {
           className="mb-4 w-full max-w-sm px-3 py-2 border rounded-md"
         />
 
-        {/* 📊 Table */}
-        <table className="w-full border rounded-lg">
-          <thead className="bg-gray-200">
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Created</th>
-              <th>Last Login</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+        {/* ✅ SHADCN TABLE */}
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow className='bg-gray-200'>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Last Login</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
 
-          <tbody>
-            {paginatedUsers.map((u) => (
-              <tr key={u.id} className="border-t text-center">
-                <td>{u.user_metadata?.name || u.email.split('@')[0]}</td>
-                <td>{u.email}</td>
-                <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                <td>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString() : 'Never'}</td>
-                <td>{u.banned_until ? 'Disabled' : 'Active'}</td>
-                <td className="flex justify-center gap-2 py-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="p-0">
-                        <MoreHorizontalIcon className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-40">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => openEditDialog(u)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => resetPassword(u.id)}>Reset Password</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => deleteUser(u.id)} className="text-red-600">
-                        Delete User
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            <TableBody>
+              {paginatedUsers.map((u) => (
+                <TableRow key={u.id}>
+                  <TableCell>
+                    {u.user_metadata?.name || u.email.split('@')[0]}
+                  </TableCell>
+                  <TableCell>{u.email}</TableCell>
+                  <TableCell>
+                    {new Date(u.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    {u.last_sign_in_at
+                      ? new Date(u.last_sign_in_at).toLocaleString()
+                      : 'Never'}
+                  </TableCell>
+                  <TableCell>
+                    {u.banned_until ? 'Disabled' : 'Active'}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="p-0">
+                          <MoreHorizontalIcon className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-40">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => openEditDialog(u)}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => resetPassword(u.id)}>
+                          Reset Password
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => deleteUser(u.id)}
+                          className="text-red-600"
+                        >
+                          Delete User
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
-        {/* 📄 Pagination Controls */}
+        {/* Pagination */}
         <div className="flex justify-between items-center mt-6">
           <div className="flex gap-2">
             <Button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</Button>
@@ -218,7 +246,7 @@ const checkAdmin = async () => {
         </div>
       </div>
 
-      {/* ✏️ Edit User Dialog */}
+      {/* Edit Dialog */}
       <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
         <DialogContent>
           <DialogHeader>

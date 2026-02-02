@@ -56,8 +56,8 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       
       {/* HEADER */}
-      <SidebarHeader className="mt-18">
-        <h2 className="text-lg font-bold">
+      <SidebarHeader className="lg:mt-18">
+        <h2 className="text-lg font-bold text-center">
           {role === 'admin' ? 'Admin Panel' : 'User Panel'}
         </h2>
         <Separator />
@@ -69,20 +69,20 @@ export function AppSidebar() {
         {role === 'admin' && (
           <>
             <SidebarGroup>
-              <SidebarMenuButton className="font-semibold">Add Section</SidebarMenuButton>
+              <SidebarMenuButton className="font-bold text-xl">Add Section</SidebarMenuButton>
               <NavItem href="/admin/add-expense" label="Add Expenses" pathname={pathname} />
               <NavItem href="/admin/add-categories" label="Add Categories" pathname={pathname} />
               <NavItem href="/admin/add-user" label="Add Users" pathname={pathname} />
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarMenuButton className="font-semibold">Management</SidebarMenuButton>
+              <SidebarMenuButton className="font-bold text-xl">Management</SidebarMenuButton>
               <NavItem href="/admin/manage-expenses" label="Manage Expenses" pathname={pathname} />
               <NavItem href="/admin/manage-users" label="Manage Users" pathname={pathname} />
             </SidebarGroup>
 
             <SidebarGroup>
-              <SidebarMenuButton className="font-semibold">Reports</SidebarMenuButton>
+              <SidebarMenuButton className="font-bold text-xl">Reports</SidebarMenuButton>
               <NavItem href="/admin/users" label="User Based Expenses" pathname={pathname} />
               <NavItem href="/admin/categories" label="Categories Based Expenses" pathname={pathname} />
             </SidebarGroup>

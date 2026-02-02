@@ -62,7 +62,7 @@ export default function CategoriesPage() {
 
   return (
    <ProtectedRoute>
-       <div className="max-w-md mx-5 mt-20 bg-black/10 shadow-lg rounded-md  p-6">
+       <div className="max-w-md mx-3 mt-20 bg-black/10 shadow-lg rounded-md  p-6">
       <h2 className="text-3xl font-bold mb-6 text-center">
         Add New Category
       </h2>

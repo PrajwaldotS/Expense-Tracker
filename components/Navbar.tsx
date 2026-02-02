@@ -53,22 +53,34 @@ export default function Navbar() {
   if (loading) return null
 
   return (
-    <nav className="fixed w-full h-16 bg-white/70 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-50">
+    <nav className="fixed w-full h-16 bg-white/70 backdrop-blur-md border-b border-gray-200  px-6 shadow-sm z-50">
       
-      <div className="flex items-center gap-4">
-        <SidebarTrigger className="p-2 rounded-md hover:bg-gray-200 transition" />
-        <h1 className="text-xl font-semibold text-gray-800 tracking-wide">
-          Expense Tracker
-        </h1>
-      </div>
+      <div className="relative flex items-center h-14 px-4 lg:px-8 justify-between">
+  
+  {/* LEFT */}
+  <div className="flex items-center">
+    <SidebarTrigger className="p-2 scale-[1.5] rounded-md hover:bg-gray-200 transition" />
+  </div>
 
-      <div className="flex items-center  gap-4">
-        {isLoggedIn && name && (
-          <span className="text-xl text-gray-700 font-medium">
-            Welcome, {name} 
-          </span>
-        )}
-      </div>
+  {/* CENTER */}
+  <h1 className="absolute left-1/2 -translate-x-1/2 text-3xl  lg:text-3xl font-bold text-gray-800 tracking-wide">
+    Expense  Tracker
+  </h1>
+
+  {/* RIGHT */}
+  <div className="flex items-center ml-auto">
+    {isLoggedIn && name && (
+      <span className="text-xl text-gray-700 font-medium">
+        Welcome, <br /> {name}
+      </span>
+    )}
+  </div>
+
+</div>
+
+
+      
+
 
     </nav>
   )

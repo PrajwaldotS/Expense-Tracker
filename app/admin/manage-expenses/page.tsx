@@ -157,7 +157,8 @@ export default function ExpenseTable() {
       </div>
 
       {/* Table */}
-      <Table className="border rounded-xl">
+     <div className="rounded-lg border">
+       <Table className="">
         <TableHeader className='bg-gray-200'>
           <TableRow>
            
@@ -194,6 +195,7 @@ export default function ExpenseTable() {
           ))}
         </TableBody>
       </Table>
+     </div>
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-6">

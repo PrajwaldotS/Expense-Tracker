@@ -25,7 +25,7 @@ export default function ExpenseForm() {
     else setMsg('Expense added!')
   }
   return (
-    <div className='mt-20 grid grid-cols-1 gap-4 justify-center  w-[50%] bg-black/10 p-6 rounded-md shadow-lg'>
+    <div className='mt-20 grid grid-cols-1 gap-4 justify-center max-w-md  mx-2 bg-black/10 p-6 rounded-md shadow-lg'>
       <h2 className=' text-center text-3xl font-bold'>Add Expense</h2>
       <CategorySelect value={categoryId} onChange={setCategoryId}  />
       <input placeholder="Amount" onChange={e => setAmount(e.target.value)} className='bg-white p-2 rounded-md' />

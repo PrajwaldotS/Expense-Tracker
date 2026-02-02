@@ -49,7 +49,7 @@ export default function CreateUserPage() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-md mx-5 mt-20 p-6 bg-black/10 shadow-lg rounded-md">
+      <div className="max-w-md mx-2 mt-20 p-6 bg-black/10 shadow-lg rounded-md">
       <h2 className="text-3xl font-bold mb-4 text-center">Create New User</h2>
 
       <input
