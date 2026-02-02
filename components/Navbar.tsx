@@ -53,7 +53,7 @@ export default function Navbar() {
   if (loading) return null
 
   return (
-    <nav className="fixed w-full h-16 bg-white/70 backdrop-blur-md border-b border-gray-200  px-6 shadow-sm z-50">
+    <nav className="fixed w-full h-16 bg-white/70 backdrop-blur-md border-b border-gray-200  px-6 mt-2 shadow-sm z-50">
       
       <div className="relative flex items-center h-14 px-4 lg:px-8 justify-between">
   
@@ -63,7 +63,7 @@ export default function Navbar() {
   </div>
 
   {/* CENTER */}
-  <h1 className="absolute left-1/2 -translate-x-1/2 text-3xl  lg:text-3xl font-bold text-gray-800 tracking-wide">
+  <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl  lg:text-3xl font-bold text-gray-800 tracking-wide">
     Expense  Tracker
   </h1>
 
