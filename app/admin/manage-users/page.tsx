@@ -1,4 +1,8 @@
 'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabaseClient'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -8,11 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontalIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import ProtectedRoute from '@/components/ProtectedRoute'
-import { supabase } from '@/lib/supabaseClient'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { MoreHorizontalIcon } from 'lucide-react'
 
 export default function AdminUsersPage() {
   const router = useRouter()
@@ -23,11 +33,17 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
 
+  const [editingUser, setEditingUser] = useState<any | null>(null)
+  const [editForm, setEditForm] = useState({
+    name: '',
+    role: 'user',
+  })
+
   useEffect(() => {
     fetchUsers()
     checkAdmin()
   }, [router])
- const checkAdmin = async () => {
+const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
@@ -69,41 +85,56 @@ export default function AdminUsersPage() {
 
   const deleteUser = async (id: string) => {
     if (!confirm('Delete this user?')) return
+
     await fetch('/api/admin/delete-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: id }),
     })
+
     fetchUsers()
   }
 
-  const editUser = async (u: any) => {
-    const name = prompt('Enter new name', u.user_metadata?.name || '')
-    const role = prompt('Enter role (admin/user)', 'user')
-    if (!name || !role) return
+  const openEditDialog = (u: any) => {
+    setEditingUser(u)
+    setEditForm({
+      name: u.user_metadata?.name || u.email.split('@')[0],
+      role: u.role || 'user',
+    })
+  }
+
+  const saveUserEdit = async () => {
+    if (!editingUser) return
 
     await fetch('/api/admin/update-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: u.id, name, role, disabled: !!u.banned_until }),
+      body: JSON.stringify({
+        userId: editingUser.id,
+        name: editForm.name,
+        role: editForm.role,
+        disabled: !!editingUser.banned_until,
+      }),
     })
+
+    setEditingUser(null)
     fetchUsers()
   }
 
-  // 🔍 Search Filter
+  // 🔍 Search filter
   const filteredUsers = users.filter((u) =>
     (u.user_metadata?.name || u.email.split('@')[0]).toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   )
 
-  // 📄 Pagination Logic
+  // 📄 Pagination
   const totalPages = Math.ceil(filteredUsers.length / pageSize)
   const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize)
 
   if (loading) return <p className="p-6">Loading users...</p>
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute >
       <div className="w-4/5 mx-auto mt-18">
         <h2 className="text-2xl font-bold mb-4">All Users</h2>
 
@@ -150,7 +181,7 @@ export default function AdminUsersPage() {
                     <DropdownMenuContent className="w-40">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => editUser(u)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => openEditDialog(u)}>Edit</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => resetPassword(u.id)}>Reset Password</DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => deleteUser(u.id)} className="text-red-600">
@@ -186,6 +217,46 @@ export default function AdminUsersPage() {
           </select>
         </div>
       </div>
+
+      {/* ✏️ Edit User Dialog */}
+      <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div>
+              <Label>Name</Label>
+              <Input
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <Label>Role</Label>
+              <select
+                value={editForm.role}
+                onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                className="w-full border rounded px-2 py-1"
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setEditingUser(null)}>
+              Cancel
+            </Button>
+            <Button onClick={saveUserEdit}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </ProtectedRoute>
   )
 }
