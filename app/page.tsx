@@ -31,41 +31,81 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="h-dvh flex items-center justify-center bg-linear-to-br from-blue-100 via-purple-100 to-pink-100 p-4">
-      <div className="w-full max-w-md backdrop-blur-lg bg-white/30 border border-white/40 shadow-xl rounded-2xl p-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">Expense Tracker</h1>
-        <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-          Login
-        </h2>
+    <div className="min-h-screen flex bg-gray-100">
 
-        <div className="flex flex-col gap-4">
-          <input
-            className="px-4 py-2 rounded-lg text-black bg-white/60 border border-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-600"
-            placeholder="Email"
-            onChange={e => setEmail(e.target.value)}
-          />
+      {/* LEFT SIDE — Branding & Finance Feel */}
+      <div className="hidden lg:flex w-1/2 bg-linear-to-br from-slate-900 via-blue-900 to-slate-800 text-white p-12 flex-col justify-between">
+        <div>
+          <h1 className="text-7xl font-bold mb-4">Expense Tracker</h1>
+          <p className="text-lg text-blue-100">
+            Smart expense monitoring for teams and startups.
+          </p>
+        </div>
 
-          <input
-            type="password"
-            className="px-4 py-2 rounded-lg text-black bg-white/60 border border-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-600"
-            placeholder="Password"
-            onChange={e => setPassword(e.target.value)}
-          />
+        <div className="space-y-6 text-l text-blue-200">
+          <div>✔ Track daily spending</div>
+          <div>✔ Monitor category budgets</div>
+          <div>✔ Visualize financial trends</div>
+        </div>
 
-          <button
-            onClick={login}
-            className="mt-2 py-2 rounded-lg bg-purple-500 text-white font-medium hover:bg-purple-600 transition"
-          >
-            Login
-          </button>
+        <p className="text-2xl text-blue-300 opacity-70">
+          Secure • Reliable • Built for finance clarity
+        </p>
+      </div>
 
-          <p className="text-center text-sm text-gray-700">
-            Account creation is managed by the administrator.
+      {/* RIGHT SIDE — Login Card */}
+      <div className="flex w-full lg:w-1/2 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-10 border border-gray-200">
+
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            Welcome Back
+          </h2>
+          <p className="text-gray-500 mb-6 text-sm">
+            Login to access your expense dashboard
           </p>
 
-          {msg && (
-            <p className="text-center text-sm text-red-600 mt-2">{msg}</p>
-          )}
+          <div className="space-y-5">
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                placeholder="you@company.com"
+                onChange={e => setEmail(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none transition"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                onChange={e => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none transition"
+              />
+            </div>
+
+            <button
+              onClick={login}
+              className="w-full bg-blue-700 hover:bg-blue-800 text-white py-2.5 rounded-lg font-medium shadow-md transition"
+            >
+              Log In
+            </button>
+
+            <p className="text-center text-xs text-gray-500">
+              Account creation is managed by the administrator.
+            </p>
+
+            {msg && (
+              <p className="text-center text-sm text-red-600">{msg}</p>
+            )}
+
+          </div>
         </div>
       </div>
     </div>

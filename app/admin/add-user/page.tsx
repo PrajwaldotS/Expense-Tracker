@@ -1,8 +1,12 @@
 'use client'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function CreateUserPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -19,6 +23,29 @@ export default function CreateUserPage() {
     if (data.error) setMsg(data.error)
     else setMsg('User created successfully!')
   }
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      const { data } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (data?.role !== 'admin') {
+        router.push('/Dashboard')
+      } 
+    }
+
+    checkAdmin()
+  }, [router])
+
 
   return (
     <ProtectedRoute>

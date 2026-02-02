@@ -116,10 +116,14 @@ export function AppSidebar() {
             </Link>
           </SidebarGroup>
         )}
+        <Link href='changes-password' className="block mb-2 py-2 px-4 hover:bg-muted rounded-md">
+          Change Password
+        </Link>
 
       </SidebarContent>
 
-      <SidebarFooter className="p-4 text-xs text-muted-foreground">
+      <SidebarFooter className="p-4 text-center  text-muted-foreground">
+        
         Logged in as {role}
         {isLoggedIn && <Logout />}
       </SidebarFooter>

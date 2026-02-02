@@ -22,9 +22,12 @@ import {
 import { MoreHorizontalIcon } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { useRouter } from 'next/navigation'
+
 
 
 export default function ExpenseTable() {
+  const router = useRouter()
   const [expenses, setExpenses] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [search, setSearch] = useState('')
@@ -46,9 +49,29 @@ export default function ExpenseTable() {
   useEffect(() => {
     supabase.from('categories').select('id, name').then(({ data }) => {
       setCategories(data || [])
-    })
-  }, [])
+    }) ,
+    checkAdmin()
+    
+  },[router])
+  const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
 
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      const { data } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (data?.role !== 'admin') {
+        router.push('/Dashboard')
+      } 
+      
+    }
   const fetchExpenses = async () => {
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1

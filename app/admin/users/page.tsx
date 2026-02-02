@@ -11,8 +11,10 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { useRouter } from 'next/navigation'
 
 export default function AdminDashboard() {
+  const router = useRouter()
   const [totalSpent, setTotalSpent] = useState(0)
   const [userTotals, setUserTotals] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -24,8 +26,28 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchUserTotals()
     fetchTotalSpent()
-  }, [])
+    checkAdmin()
+  }, [router])
+ const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
 
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      const { data } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (data?.role !== 'admin') {
+        router.push('/Dashboard')
+      } else {
+        setLoading(false)
+      }
+    }
   const fetchUserTotals = async () => {
     const { data, error } = await supabase
       .from('admin_user_expense_totals')

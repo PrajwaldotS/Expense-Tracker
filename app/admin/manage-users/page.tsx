@@ -10,10 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontalIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
+import { useRouter } from 'next/router'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function AdminUsersPage() {
+  const router = useRouter()
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -23,8 +25,28 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers()
-  }, [])
+    checkAdmin()
+  }, [router])
+ const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
 
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      const { data } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (data?.role !== 'admin') {
+        router.push('/Dashboard')
+      } else {
+        setLoading(false)
+      }
+    }
   const fetchUsers = async () => {
     const res = await fetch('/api/admin/user')
     const data = await res.json()
