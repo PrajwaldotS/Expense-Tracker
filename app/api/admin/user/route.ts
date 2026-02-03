@@ -5,7 +5,10 @@ const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
-
+type ZoneLinkRow = {
+  user_id: string
+  zones: { name: string } | null
+}
 export async function GET() {
   const { data: authUsers, error: authError } =
     await supabaseAdmin.auth.admin.listUsers()
@@ -24,7 +27,8 @@ export async function GET() {
   // Get zones assigned to users
   const { data: zoneLinks } = await supabaseAdmin
     .from('user_zones')
-    .select('user_id, zones(name)')
+    .select('user_id, zones(name)') 
+    .returns<ZoneLinkRow[]>()
 
   const zoneMap: Record<string, string[]> = {}
 
