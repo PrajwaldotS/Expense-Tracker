@@ -2,8 +2,10 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import CategorySelect from './CategorySelect'
+import ZoneSelect from './ZoneSelect'
 
 export default function ExpenseForm() {
+  const [zoneId, setZoneId] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [amount, setAmount] = useState('')
   const [desc, setDesc] = useState('')
@@ -20,14 +22,27 @@ export default function ExpenseForm() {
       description: desc,
       expense_date: new Date().toISOString().split('T')[0],
     })
+    await supabase.from('expenses').insert({
+        amount: Number(amount),
+        description: desc,
+        expense_date: new Date().toISOString().split('T')[0],
+        category_id: categoryId,
+        zone_id: zoneId,
+        user_id: user.id
+      })
 
     if (error) setMsg(error.message)
     else setMsg('Expense added!')
+  
   }
   return (
     <div className='mt-20 grid grid-cols-1 gap-4 justify-center max-w-md  mx-2 bg-black/10 p-6 rounded-md shadow-lg'>
       <h2 className=' text-center text-3xl font-bold'>Add Expense</h2>
       <CategorySelect value={categoryId} onChange={setCategoryId}  />
+      <div>
+        <label className="text-sm">Zone</label>
+        <ZoneSelect value={zoneId} onChange={setZoneId} />
+      </div>
       <input placeholder="Amount" onChange={e => setAmount(e.target.value)} className='bg-white p-2 rounded-md' />
       <input placeholder="Description" onChange={e => setDesc(e.target.value)} className='bg-white p-2 rounded-md' />
       <button onClick={addExpense} className='bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-md'>Add Expense</button>
