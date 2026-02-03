@@ -54,7 +54,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      
+
       {/* HEADER */}
       <SidebarHeader className="lg:mt-18">
         <h2 className="text-lg font-bold text-center">
@@ -63,54 +63,67 @@ export function AppSidebar() {
         <Separator />
       </SidebarHeader>
 
-      {/* CONTENT */}
       <SidebarContent>
 
         {role === 'admin' && (
           <>
-            <SidebarGroup>
-              <SidebarMenuButton className="font-bold text-xl">Add Section</SidebarMenuButton>
-              <NavItem href="/admin/add-expense" label="Add Expenses" pathname={pathname} />
-              <NavItem href="/admin/add-categories" label="Add Categories" pathname={pathname} />
-              <NavItem href="/admin/add-user" label="Add Users" pathname={pathname} />
-            </SidebarGroup>
 
+            {/* 👤 USER MANAGEMENT */}
             <SidebarGroup>
-              <SidebarMenuButton className="font-bold text-xl">Management</SidebarMenuButton>
-              <NavItem href="/admin/manage-expenses" label="Manage Expenses" pathname={pathname} />
+              <SidebarMenuButton className="font-bold text-xl">Users</SidebarMenuButton>
+              <NavItem href="/admin/add-user" label="Add User" pathname={pathname} />
               <NavItem href="/admin/manage-users" label="Manage Users" pathname={pathname} />
+              <NavItem href="/admin/users" label="User Expense Report" pathname={pathname} />
             </SidebarGroup>
 
+            {/* 🗂 CATEGORY MANAGEMENT */}
             <SidebarGroup>
-              <SidebarMenuButton className="font-bold text-xl">Reports</SidebarMenuButton>
-              <NavItem href="/admin/users" label="User Based Expenses" pathname={pathname} />
-              <NavItem href="/admin/categories" label="Categories Based Expenses" pathname={pathname} />
+              <SidebarMenuButton className="font-bold text-xl">Categories</SidebarMenuButton>
+              <NavItem href="/admin/add-categories" label="Add Category" pathname={pathname} />
+              <NavItem href="/admin/manage-categories" label="Manage Categories" pathname={pathname} />
+              <NavItem href="/admin/categories" label="Category Expense Report" pathname={pathname} />
             </SidebarGroup>
+
+            {/* 💸 EXPENSE MANAGEMENT */}
+            <SidebarGroup>
+              <SidebarMenuButton className="font-bold text-xl">Expenses</SidebarMenuButton>
+              <NavItem href="/admin/add-expense" label="Add Expense" pathname={pathname} />
+              <NavItem href="/admin/manage-expenses" label="Manage Expenses" pathname={pathname} />
+            </SidebarGroup>
+
+            {/* 📍 ZONE MANAGEMENT */}
+            <SidebarGroup>
+              <SidebarMenuButton className="font-bold text-xl">Zones</SidebarMenuButton>
+              <NavItem href="/admin/add-zone" label="Add Zone" pathname={pathname} />
+              <NavItem href="/admin/manage-zones" label="Manage Zones" pathname={pathname} />
+              <NavItem href="/admin/zone" label="Zone Summary Report" pathname={pathname} />
+            </SidebarGroup>
+
           </>
         )}
 
         {role === 'user' && (
           <SidebarGroup>
             <NavItem href="/Dashboard" label="My Expenses" pathname={pathname} />
-            <NavItem href="/admin/add-expense" label="Add Expenses" pathname={pathname} />
+            <NavItem href="/admin/add-expense" label="Add Expense" pathname={pathname} />
           </SidebarGroup>
         )}
 
+        {/* 🔑 ACCOUNT */}
         <SidebarGroup>
           <NavItem href="/change-password" label="Change Password" pathname={pathname} />
         </SidebarGroup>
 
       </SidebarContent>
 
-      {/* FOOTER */}
       <SidebarFooter className="p-4 text-center text-muted-foreground">
         Logged in as {role}
         {isLoggedIn && <Logout />}
       </SidebarFooter>
+
     </Sidebar>
   )
 }
-
 
 /* 🔹 Active Link Component */
 function NavItem({
