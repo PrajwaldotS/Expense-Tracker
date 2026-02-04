@@ -12,6 +12,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { useRouter } from 'next/navigation'
+import { FiSearch, FiPieChart } from 'react-icons/fi'
 
 export default function CategoriesPage() {
   const router = useRouter()
@@ -29,25 +30,19 @@ export default function CategoriesPage() {
   }, [router])
 
   const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return router.push('/login')
 
-      if (!user) {
-        router.push('/login')
-        return
-      }
+    const { data } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
 
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+    if (data?.role !== 'admin') router.push('/Dashboard')
+    else setLoading(false)
+  }
 
-      if (data?.role !== 'admin') {
-        router.push('/Dashboard')
-      } else {
-        setLoading(false)
-      }
-    }
   const fetchTotals = async () => {
     const { data: totals, error } = await supabase
       .from('admin_category_expense_totals')
@@ -60,7 +55,6 @@ export default function CategoriesPage() {
     }
 
     const { data: expenses } = await supabase.from('expenses').select('amount')
-
     const total = expenses?.reduce((sum, e) => sum + e.amount, 0) || 0
 
     setTotalSpent(total)
@@ -68,14 +62,12 @@ export default function CategoriesPage() {
     setLoading(false)
   }
 
-  // 🔍 Search filter
   const filteredCategories = useMemo(() => {
     return categoryTotals.filter((c) =>
       c.name.toLowerCase().includes(search.toLowerCase())
     )
   }, [categoryTotals, search])
 
-  // 📄 Pagination logic
   const totalPages = Math.max(1, Math.ceil(filteredCategories.length / pageSize))
   const paginatedCategories = filteredCategories.slice(
     (page - 1) * pageSize,
@@ -89,76 +81,96 @@ export default function CategoriesPage() {
   if (loading) return <p className="p-6">Loading category insights...</p>
 
   return (
-    <ProtectedRoute >
-      <div className="grid grid-cols-1 gap-4 justify-center my-20 mx-auto w-4/5">
+    <ProtectedRoute>
+      <div className="max-w-7xl mx-auto mt-20 px-4 space-y-8">
 
-        {/* 💰 Total Expense */}
-        <div className="h-[24dvh] bg-gray-200 rounded-xl flex items-center justify-center">
-          <h1 className="text-3xl font-bold text-center">
-            Total Amount Based on Categories <br /> ₹ {totalSpent.toLocaleString('en-IN')}
-          </h1>
+        {/* HEADER */}
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Category Spending Overview</h1>
+          <p className="text-sm text-muted-foreground">
+            Track how expenses are distributed across categories
+          </p>
         </div>
 
-        {/* 🔍 Search */}
-        <div className="">
+        {/* TOTAL EXPENSE CARD */}
+        <div className="bg-card border shadow-sm rounded-xl p-6 flex items-center gap-4">
+          <div className="p-4 rounded-lg bg-purple-200 text-purple-600"> 
+            <FiPieChart size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Expenses Across Categories</p>
+            <p className="text-2xl font-semibold text-purple-500">
+              ₹ {totalSpent.toLocaleString('en-IN')}
+            </p>
+          </div>
+        </div>
+
+        {/* SEARCH */}
+        <div className="relative max-w-sm">
+          <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search category..."
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(1)
-            }}
-            className="mb-4 w-full max-w-sm px-3 py-2 border rounded-md"
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
           />
         </div>
 
-        {/* 📊 Table */}
-        <div className="rounded-lg border">
-          <Table className="">
-          <TableHeader>
-            <TableRow className='bg-gray-200'>
-              <TableHead>No</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Total Expense</TableHead>
-              <TableHead>Last Expense Date</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {paginatedCategories.map((c, index) => (
-              <TableRow key={c.category_id}>
-                <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
-                <TableCell>{c.name}</TableCell>
-                <TableCell>₹{c.total.toLocaleString('en-IN')}</TableCell>
-                <TableCell>
-                  {c.last_expense_date
-                    ? new Date(c.last_expense_date).toLocaleDateString()
-                    : 'N/A'}
-                </TableCell>
+        {/* CATEGORY TABLE */}
+        <div className="bg-card border shadow-sm rounded-xl overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/40">
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Total Expense</TableHead>
+                <TableHead>Last Expense Date</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+
+            <TableBody>
+              {paginatedCategories.map((c, index) => (
+                <TableRow key={c.category_id} className="hover:bg-muted/40 transition">
+                  <TableCell className="text-muted-foreground">
+                    {(page - 1) * pageSize + index + 1}
+                  </TableCell>
+                  <TableCell className="font-medium text-purple-500">
+                    {c.name}
+                  </TableCell>
+                  <TableCell className="font-semibold text-[#f15bb5]">
+                    ₹ {c.total.toLocaleString('en-IN')}
+                  </TableCell>
+                  <TableCell>
+                    {c.last_expense_date
+                      ? new Date(c.last_expense_date).toLocaleDateString()
+                      : 'N/A'}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
 
-        {/* 📄 Pagination */}
-        <div className="flex justify-between items-center mx-6 mt-4">
-          <div className="flex gap-2">
+        {/* PAGINATION */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex gap-2 items-center">
             <button
               disabled={page === 1}
               onClick={() => setPage(p => p - 1)}
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              className="px-3 py-1.5 rounded-md border bg-card hover:bg-muted disabled:opacity-50"
             >
               Prev
             </button>
 
-            <span>Page {page} of {totalPages}</span>
+            <span className="text-sm text-muted-foreground">
+              Page <span className="font-medium text-foreground">{page}</span> of {totalPages}
+            </span>
 
             <button
               disabled={page === totalPages}
               onClick={() => setPage(p => p + 1)}
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              className="px-3 py-1.5 rounded-md border bg-card hover:bg-muted disabled:opacity-50"
             >
               Next
             </button>
@@ -166,11 +178,8 @@ export default function CategoriesPage() {
 
           <select
             value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value))
-              setPage(1)
-            }}
-            className="border rounded px-3 py-2"
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }}
+            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#00f5d4] outline-none"
           >
             <option value={5}>5 / page</option>
             <option value={10}>10 / page</option>

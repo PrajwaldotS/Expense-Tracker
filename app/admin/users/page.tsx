@@ -12,6 +12,8 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { useRouter } from 'next/navigation'
+import {  FiSearch } from 'react-icons/fi'
+import { FaRupeeSign } from "react-icons/fa";
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -28,26 +30,21 @@ export default function AdminDashboard() {
     fetchTotalSpent()
     checkAdmin()
   }, [router])
- const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
 
-      if (!user) {
-        router.push('/login')
-        return
-      }
+  const checkAdmin = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return router.push('/login')
 
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+    const { data } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
 
-      if (data?.role !== 'admin') {
-        router.push('/Dashboard')
-      } else {
-        setLoading(false)
-      }
-    }
+    if (data?.role !== 'admin') router.push('/Dashboard')
+    else setLoading(false)
+  }
+
   const fetchUserTotals = async () => {
     const { data, error } = await supabase
       .from('admin_user_expense_totals')
@@ -71,18 +68,12 @@ export default function AdminDashboard() {
     setTotalSpent(total)
   }
 
-  // 🔍 Filter users by name
   const filteredUsers = userTotals.filter((u) =>
     u.name.toLowerCase().includes(search.toLowerCase())
   )
 
-  // 📄 Pagination logic
   const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize))
-
-  const paginatedUsers = filteredUsers.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  )
+  const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize)
 
   useEffect(() => {
     if (page > totalPages) setPage(1)
@@ -91,76 +82,96 @@ export default function AdminDashboard() {
   if (loading) return <p className="p-6">Loading admin insights...</p>
 
   return (
-    <ProtectedRoute >
-      <div className="grid grid-cols-1 gap-4 justify-center my-20 mx-auto w-4/5">
+    <ProtectedRoute>
+      <div className="max-w-7xl mx-auto mt-20 px-4 space-y-8">
 
-        {/* 💰 Total Expense Card */}
-        <div className="h-[20dvh] bg-gray-200 rounded-xl  flex items-center justify-center">
-          <h1 className="text-3xl text-center font-bold text-black">
-            Total Amount By All Users <br /> ₹{totalSpent.toLocaleString('en-IN')}
-          </h1>
+        {/* HEADER */}
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">User Spending Overview</h1>
+          <p className="text-sm text-muted-foreground">
+            Monitor individual expense contributions across the system
+          </p>
         </div>
 
-        {/* 🔍 Search */}
-        <div className="">
+        {/* TOTAL EXPENSE CARD */}
+        <div className="bg-card border shadow-sm rounded-xl p-6 flex items-center gap-4">
+          <div className="p-4 rounded-lg bg-[#f15bb5]/10 text-[#f15bb5]">
+            <FaRupeeSign size={24} />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Platform Expenses</p>
+            <p className="text-2xl font-semibold text-foreground">
+              ₹ {totalSpent.toLocaleString('en-IN')}
+            </p>
+          </div>
+        </div>
+
+        {/* SEARCH */}
+        <div className="relative max-w-sm">
+          <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search user..."
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(1)
-            }}
-            className="mb-4 w-full max-w-sm px-3 py-2 border rounded-md"
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#00bbf9] outline-none"
           />
         </div>
 
-        {/* 📊 User Totals Table */}
-       <div className=" rounded-lg border">
-         <Table className="">
-          <TableHeader>
-            <TableRow className='bg-gray-200'>
-              <TableHead>User No</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Total Expense</TableHead>
-              <TableHead>Last Expense Date</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {paginatedUsers.map((u, index) => (
-              <TableRow key={u.user_id}>
-                <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
-                <TableCell>{u.name}</TableCell>
-                <TableCell>₹{u.total.toLocaleString('en-IN')}</TableCell>
-                <TableCell>
-                  {u.last_expense_date
-                    ? new Date(u.last_expense_date).toLocaleDateString()
-                    : 'N/A'}
-                </TableCell>
+        {/* USER TOTALS TABLE */}
+        <div className="bg-card border shadow-sm rounded-xl overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/40">
+              <TableRow>
+                <TableHead>Sl No</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Total Expense</TableHead>
+                <TableHead>Last Expense Date</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
 
-       </div>
-        {/* 📄 Pagination Controls */}
-        <div className="flex justify-between items-center mx-6 mt-4">
-          <div className="flex gap-2">
+            <TableBody>
+              {paginatedUsers.map((u, index) => (
+                <TableRow key={u.user_id} className="hover:bg-muted/40 transition">
+                  <TableCell className="text-muted-foreground">
+                    {(page - 1) * pageSize + index + 1}
+                  </TableCell>
+                  <TableCell className="font-medium text-blue-400">
+                    {u.name}
+                  </TableCell>
+                  <TableCell className="font-semibold text-[#f15bb5]">
+                    ₹ {u.total.toLocaleString('en-IN')}
+                  </TableCell>
+                  <TableCell>
+                    {u.last_expense_date
+                      ? new Date(u.last_expense_date).toLocaleDateString()
+                      : 'N/A'}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* PAGINATION */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex gap-2 items-center">
             <button
               disabled={page === 1}
               onClick={() => setPage(p => p - 1)}
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              className="px-3 py-1.5 rounded-md border bg-card hover:bg-muted disabled:opacity-50"
             >
               Prev
             </button>
 
-            <span>Page {page} of {totalPages}</span>
+            <span className="text-sm text-muted-foreground">
+              Page <span className="font-medium text-foreground">{page}</span> of {totalPages}
+            </span>
 
             <button
               disabled={page === totalPages}
               onClick={() => setPage(p => p + 1)}
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              className="px-3 py-1.5 rounded-md border bg-card hover:bg-muted disabled:opacity-50"
             >
               Next
             </button>
@@ -168,15 +179,12 @@ export default function AdminDashboard() {
 
           <select
             value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value))
-              setPage(1)
-            }}
-            className="border rounded px-3 py-2"
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }}
+            className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#00f5d4] outline-none"
           >
-            <option value={5}>5 / page</option>
-            <option value={10}>10 / page</option>
-            <option value={20}>20 / page</option>
+            <option className='bg-card text-foreground'  value={5}>5 / page</option>
+            <option className='bg-card text-foreground' value={10}>10 / page</option>
+            <option className='bg-card text-foreground' value={20}>20 / page</option>
           </select>
         </div>
       </div>

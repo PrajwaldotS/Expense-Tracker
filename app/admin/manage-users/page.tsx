@@ -23,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MoreHorizontalIcon } from 'lucide-react'
-
 import {
   Table,
   TableBody,
@@ -32,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { FiSearch } from 'react-icons/fi'
 
 export default function AdminUsersPage() {
   const router = useRouter()
@@ -81,13 +81,11 @@ export default function AdminUsersPage() {
 
   const toggleZone = async (zoneId: string) => {
     if (!selectedUser) return
-
     if (assignedZones.includes(zoneId)) {
       await supabase.from('user_zones').delete().eq('user_id', selectedUser.id).eq('zone_id', zoneId)
     } else {
       await supabase.from('user_zones').insert({ user_id: selectedUser.id, zone_id: zoneId })
     }
-
     loadZones(selectedUser.id)
     fetchUsers()
   }
@@ -149,21 +147,33 @@ export default function AdminUsersPage() {
 
   return (
     <ProtectedRoute>
-      <div className="w-4/5 mx-auto mt-18">
-        <h2 className="text-2xl font-bold mb-4">All Users</h2>
+      <div className="max-w-7xl mx-auto mt-20 px-4 space-y-6">
 
-        <input
-          type="text"
-          placeholder="Search by name or email..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-          className="mb-4 w-full max-w-sm px-3 py-2 border rounded-md"
-        />
+        {/* HEADER */}
+        <div>
+          <h2 className="text-2xl font-semibold text-foreground">User Management</h2>
+          <p className="text-sm text-muted-foreground">
+            Manage access, roles, and assigned operational zones
+          </p>
+        </div>
 
-        <div className="rounded-lg border">
+        {/* SEARCH */}
+        <div className="relative max-w-sm">
+          <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            className="pl-10 focus-visible:ring-[#00bbf9]"
+          />
+        </div>
+
+        {/* TABLE CARD */}
+        <div className="bg-card border shadow-sm rounded-xl overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow className='bg-gray-200'>
+            <TableHeader className="bg-muted/40">
+              <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Zones</TableHead>
@@ -176,11 +186,11 @@ export default function AdminUsersPage() {
 
             <TableBody>
               {paginatedUsers.map((u) => (
-                <TableRow key={u.id}>
-                  <TableCell>{u.user_metadata?.name || u.email.split('@')[0]}</TableCell>
-                  <TableCell>{u.email}</TableCell>
+                <TableRow key={u.id} className="hover:bg-muted/40 transition">
+                  <TableCell className="font-medium text-blue-400   rounded-md">{u.user_metadata?.name || u.email.split('@')[0]}</TableCell>
+                  <TableCell className="text-muted-foreground">{u.email}</TableCell>
                   <TableCell>
-                    <div className="group relative cursor-pointer text-blue-600 underline">
+                    <div className="group px-2 py-1 text-center relative rounded-md cursor-pointer no-underline  bg-brand/10 text-brand  ">
                       {u.zone_names ? u.zone_names.split(',').length : 0} Zones
                       <div className="absolute hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-10">
                         {u.zone_names || 'No Zones'}
@@ -189,15 +199,19 @@ export default function AdminUsersPage() {
                   </TableCell>
                   <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString() : 'Never'}</TableCell>
-                  <TableCell>{u.banned_until ? 'Disabled' : 'Active'}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-md text-xs ${
+                      u.banned_until ? 'bg-[#f15bb5]/10 text-destructive' : 'bg-accent/10 text-accent '
+                    }`}>
+                      {u.banned_until ? 'Disabled' : 'Active'}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="p-0">
-                          <MoreHorizontalIcon className="h-4 w-4" />
-                        </Button>
+                        <Button variant="ghost" size="icon"><MoreHorizontalIcon className="h-4 w-4" /></Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-40">
+                      <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => openEditDialog(u)}>Edit</DropdownMenuItem>
@@ -206,7 +220,7 @@ export default function AdminUsersPage() {
                           Manage Zones
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => deleteUser(u.id)} className="text-red-600">
+                        <DropdownMenuItem onClick={() => deleteUser(u.id)} className="text-destructive">
                           Delete User
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -218,22 +232,22 @@ export default function AdminUsersPage() {
           </Table>
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center mt-6">
-          <div className="flex gap-2">
+        {/* PAGINATION */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex gap-2 items-center">
             <Button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</Button>
-            <span>Page {page} of {totalPages || 1}</span>
+            <span className="text-sm text-muted-foreground">Page {page} of {totalPages || 1}</span>
             <Button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
           </div>
 
           <select
             value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }}
-            className="border rounded px-3 py-2"
+            className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#00bbf9] outline-none"
           >
-            <option value={5}>5 / page</option>
-            <option value={10}>10 / page</option>
-            <option value={20}>20 / page</option>
+            <option className='bg-card text-foreground' value={5}>5 / page</option>
+            <option className='bg-card text-foreground' value={10}>10 / page</option>
+            <option className='bg-card text-foreground' value={20}>20 / page</option>
           </select>
         </div>
       </div>
@@ -286,3 +300,7 @@ export default function AdminUsersPage() {
     </ProtectedRoute>
   )
 }
+
+
+
+ 

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
+import { FiLock } from 'react-icons/fi'
 
 export default function ChangePasswordPage() {
   const router = useRouter()
@@ -22,7 +23,6 @@ export default function ChangePasswordPage() {
       return
     }
 
-    // 🔐 Step 1: Re-authenticate with current password
     const { error: loginError } = await supabase.auth.signInWithPassword({
       email: user.email,
       password: currentPassword,
@@ -34,7 +34,6 @@ export default function ChangePasswordPage() {
       return
     }
 
-    // 🔄 Step 2: Update to new password
     const { error: updateError } = await supabase.auth.updateUser({
       password: newPassword,
     })
@@ -54,57 +53,67 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className=" bg-white px-6">
-      <div className="max-w-md  mt-20 bg-black/10 shadow-xl rounded-2xl p-8 border border-gray-200">
+    <div className="min-h-[70vh]  px-4 mt-20">
+      <div className="w-full max-w-lg bg-card border shadow-sm rounded-xl p-6 space-y-6">
 
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-          Change Password
-        </h2>
-        <p className="text-sm text-gray-500 mb-6">
-          For security, please confirm your current password.
-        </p>
+        {/* HEADER */}
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Change Password</h2>
+          <p className="text-sm text-muted-foreground">
+            Confirm your current password before setting a new one.
+          </p>
+        </div>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
 
-          <div>
-            <label className="block  text-sm font-medium text-gray-600 mb-1">
-              Current Password
-            </label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
-            />
+          {/* Current Password */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-muted-foreground">Current Password</label>
+            <div className="relative">
+              <FiLock className="absolute left-3 top-3 text-[#9b5de5]" />
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              New Password
-            </label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-2 border bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
-            />
+          {/* New Password */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-muted-foreground">New Password</label>
+            <div className="relative">
+              <FiLock className="absolute left-3 top-3 text-[#f15bb5]" />
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#f15bb5] outline-none"
+              />
+            </div>
           </div>
 
+          {/* BUTTON */}
           <button
             onClick={handleChangePassword}
             disabled={loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg font-medium transition"
+            className="w-full bg-[#00bbf9] hover:bg-[#009edc] text-white font-medium py-2.5 rounded-lg transition shadow-sm"
           >
             {loading ? 'Updating...' : 'Update Password'}
           </button>
 
+          {/* MESSAGE */}
           {msg && (
-            <p className={`text-center text-sm mt-2 ${
-              msg.includes('success') ? 'text-green-600' : 'text-red-600'
+            <p className={`text-sm text-center ${
+              msg.includes('success')
+                ? 'text-[#00f5d4]'
+                : 'text-[#f15bb5]'
             }`}>
               {msg}
             </p>
           )}
+
         </div>
       </div>
     </div>

@@ -14,6 +14,15 @@ import {
 import Link from 'next/link'
 import { Separator } from './ui/separator'
 import { usePathname } from 'next/navigation'
+import {
+  FiUsers,
+  FiFolder,
+  FiDollarSign,
+  FiMapPin,
+  FiLock,
+  FiPlusCircle,
+  FiBarChart2
+} from 'react-icons/fi'
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -53,86 +62,94 @@ export function AppSidebar() {
   if (!isLoggedIn) return null
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
 
       {/* HEADER */}
-      <SidebarHeader className="lg:mt-18">
-        <h2 className="text-lg font-bold text-center">
+      <SidebarHeader className="px-5 pt-6 lg:mt-14">
+        <h2 className="text-xl font-semibold tracking-tight text-sidebar-foreground">
           {role === 'admin' ? 'Admin Panel' : 'User Panel'}
         </h2>
-        <Separator />
+        <p className="text-xs text-muted-foreground">Finance Management</p>
+        <Separator className="" />
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-3 space-y-6">
 
         {role === 'admin' && (
           <>
-
-            {/* 👤 USER MANAGEMENT */}
+            {/* USERS */}
             <SidebarGroup>
-              <SidebarMenuButton className="font-bold text-xl">Users</SidebarMenuButton>
-              <NavItem href="/admin/add-user" label="Add User" pathname={pathname} />
-              <NavItem href="/admin/manage-users" label="Manage Users" pathname={pathname} />
-              <NavItem href="/admin/users" label="User Expense Report" pathname={pathname} />
+              <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+                User Management
+              </SidebarMenuButton>
+              <NavItem href="/admin/add-user" label="Add User" icon={FiPlusCircle} pathname={pathname} />
+              <NavItem href="/admin/manage-users" label="Manage Users" icon={FiUsers} pathname={pathname} />
+              <NavItem href="/admin/users" label="Expense Report" icon={FiBarChart2} pathname={pathname} />
             </SidebarGroup>
 
-            {/* 🗂 CATEGORY MANAGEMENT */}
+            {/* CATEGORIES */}
             <SidebarGroup>
-              <SidebarMenuButton className="font-bold text-xl">Categories</SidebarMenuButton>
-              <NavItem href="/admin/add-categories" label="Add Category" pathname={pathname} />
-              <NavItem href="/admin/manage-categories" label="Manage Categories" pathname={pathname} />
-              <NavItem href="/admin/categories" label="Category Expense Report" pathname={pathname} />
+              <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+                Categories
+              </SidebarMenuButton>
+              <NavItem href="/admin/add-categories" label="Add Category" icon={FiPlusCircle} pathname={pathname} />
+              <NavItem href="/admin/manage-categories" label="Manage Categories" icon={FiFolder} pathname={pathname} />
+              <NavItem href="/admin/categories" label="Category Report" icon={FiBarChart2} pathname={pathname} />
             </SidebarGroup>
 
-            {/* 💸 EXPENSE MANAGEMENT */}
+            {/* EXPENSES */}
             <SidebarGroup>
-              <SidebarMenuButton className="font-bold text-xl">Expenses</SidebarMenuButton>
-              <NavItem href="/admin/add-expense" label="Add Expense" pathname={pathname} />
-              <NavItem href="/admin/manage-expenses" label="Manage Expenses" pathname={pathname} />
+              <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+                Expenses
+              </SidebarMenuButton>
+              <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
+              <NavItem href="/admin/manage-expenses" label="Manage Expenses" icon={FiDollarSign} pathname={pathname} />
             </SidebarGroup>
 
-            {/* 📍 ZONE MANAGEMENT */}
+            {/* ZONES */}
             <SidebarGroup>
-              <SidebarMenuButton className="font-bold text-xl">Zones</SidebarMenuButton>
-              <NavItem href="/admin/add-zone" label="Add Zone" pathname={pathname} />
-              <NavItem href="/admin/manage-zones" label="Manage Zones" pathname={pathname} />
-              <NavItem href="/admin/zone" label="Zone Summary Report" pathname={pathname} />
+              <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+                Zones
+              </SidebarMenuButton>
+              <NavItem href="/admin/add-zone" label="Add Zone" icon={FiPlusCircle} pathname={pathname} />
+              <NavItem href="/admin/manage-zones" label="Manage Zones" icon={FiMapPin} pathname={pathname} />
+              <NavItem href="/admin/zone" label="Zone Report" icon={FiBarChart2} pathname={pathname} />
             </SidebarGroup>
-
           </>
         )}
 
         {role === 'user' && (
           <SidebarGroup>
-            <NavItem href="/Dashboard" label="My Expenses" pathname={pathname} />
-            <NavItem href="/admin/add-expense" label="Add Expense" pathname={pathname} />
+            <NavItem href="/Dashboard" label="My Expenses" icon={FiDollarSign} pathname={pathname} />
+            <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
           </SidebarGroup>
         )}
 
-        {/* 🔑 ACCOUNT */}
+        {/* ACCOUNT */}
         <SidebarGroup>
-          <NavItem href="/change-password" label="Change Password" pathname={pathname} />
+          <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+            Account
+          </SidebarMenuButton>
+          <NavItem href="/change-password" label="Change Password" icon={FiLock} pathname={pathname} />
         </SidebarGroup>
 
       </SidebarContent>
 
-      <SidebarFooter className="p-4 text-center text-muted-foreground">
-        Logged in as {role}
-        {isLoggedIn && <Logout />}
-      </SidebarFooter>
-
+      
     </Sidebar>
   )
 }
 
-/* 🔹 Active Link Component */
+/* 🔹 Enhanced Nav Item */
 function NavItem({
   href,
   label,
+  icon: Icon,
   pathname,
 }: {
   href: string
   label: string
+  icon: any
   pathname: string
 }) {
   const isActive = pathname.startsWith(href)
@@ -140,12 +157,13 @@ function NavItem({
   return (
     <Link
       href={href}
-      className={`block px-4 py-2 rounded-md transition-all
+      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all
         ${isActive
-          ? 'bg-blue-600 text-white shadow-md'
-          : 'hover:bg-muted text-muted-foreground'
+          ? 'bg-brand/10 text-brand shadow-sm'
+          : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
         }`}
     >
+      <Icon className="text-base" />
       {label}
     </Link>
   )

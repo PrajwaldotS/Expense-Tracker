@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { ThemeProvider } from "next-themes"
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/Sidebar";
 import AuthGate from "@/components/authGate";
@@ -43,10 +43,8 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          forcedTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange
+          defaultTheme="system"
+          enableSystem
         >
           <SidebarProvider>
             

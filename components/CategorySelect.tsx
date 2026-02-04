@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { FiTag } from 'react-icons/fi'
 
 type Category = {
   id: string
@@ -31,15 +32,16 @@ export default function CategorySelect({ value, onChange }: CategorySelectProps)
   }, [])
 
   return (
-    <div className="bg-white p-2 rounded-md">
+    <div className="relative">
+      <FiTag className="absolute left-3 top-3 text-[#9b5de5]" />
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-2 py-1 border rounded"
+        className="w-full pl-10 pr-3 py-2 border rounded-lg bg-card focus:ring-2 focus:ring-[#9b5de5] outline-none text-sm"
       >
         <option value="">Select Category</option>
         {categories.map((c) => (
-          <option key={c.id} value={c.id}>
+          <option className='bg-card text-foreground' key={c.id} value={c.id}>
             {c.name}
           </option>
         ))}

@@ -83,88 +83,112 @@ export default function ManageCategoriesPage() {
 
   return (
     <ProtectedRoute>
-      <div className="w-5/6 mx-auto mt-20">
-        <h1 className="text-2xl font-bold mb-6">Manage Categories</h1>
+      <div className="max-w-7xl mx-auto mt-20 px-4 space-y-6">
 
-        <Table className="border rounded-xl">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Created By</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Total Expense</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
+        {/* HEADER */}
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Manage Categories</h1>
+          <p className="text-sm text-muted-foreground">
+            Edit, track, and maintain expense categories
+          </p>
+        </div>
 
-          <TableBody>
-            {categories.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell>{c.name}</TableCell>
-                <TableCell>{c.created_by || '—'}</TableCell>
-                <TableCell>{new Date(c.created_at).toLocaleDateString()}</TableCell>
-                <TableCell>₹{Number(c.total_expense).toLocaleString('en-IN')}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => openEditDialog(c)}>
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => deleteCategory(c.id)}
-                        className="text-red-600"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+        {/* TABLE CARD */}
+        <div className="bg-card border shadow-sm rounded-xl overflow-hidden mb-5">
+          <Table>
+            <TableHeader className="bg-muted/40">
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Created By</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead>Total Expense</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+
+            <TableBody>
+              {categories.map((c) => (
+                <TableRow key={c.id} className="hover:bg-muted/40 transition">
+                  <TableCell className="font-medium text-purple-500">
+                    {c.name}
+                  </TableCell>
+
+                  <TableCell className="text-muted-foreground">
+                    {c.created_by || '—'}
+                  </TableCell>
+
+                  <TableCell>
+                    {new Date(c.created_at).toLocaleDateString()}
+                  </TableCell>
+
+                  <TableCell className="font-semibold text-[#f15bb5]">
+                    ₹ {Number(c.total_expense).toLocaleString('en-IN')}
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" className="hover:bg-muted">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEditDialog(c)}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => deleteCategory(c.id)}
+                          className="text-destructive"
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
         {/* EDIT DIALOG */}
         <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
-          <DialogContent>
+          <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>Edit Category</DialogTitle>
+              <DialogTitle className="text-[#1e293b]">Edit Category</DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
-              <div>
+              <div className="space-y-1">
                 <Label>Category Name</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="focus-visible:ring-[#9b5de5]"
                 />
               </div>
 
-              <div>
+              <div className="space-y-1">
                 <Label>Created By</Label>
                 <select
                   value={form.created_by}
                   onChange={(e) => setForm({ ...form, created_by: e.target.value })}
-                  className="w-full border rounded px-2 py-2"
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#00bbf9] outline-none"
                 >
-                  <option value="">Select User</option>
+                  <option  value="">Select User</option>
                   {users.map((u) => (
-                    <option key={u.id} value={u.id}>{u.name}</option>
+                    <option className='bg-card text-foreground' key={u.id} value={u.id}>{u.name}</option>
                   ))}
                 </select>
               </div>
 
-              <div>
+              <div className="space-y-1">
                 <Label>Created At</Label>
                 <Input
                   type="date"
                   value={form.created_at}
                   onChange={(e) => setForm({ ...form, created_at: e.target.value })}
+                  className="focus-visible:ring-[#fee440]"
                 />
               </div>
             </div>
@@ -173,7 +197,9 @@ export default function ManageCategoriesPage() {
               <Button variant="secondary" onClick={() => setEditingCategory(null)}>
                 Cancel
               </Button>
-              <Button onClick={saveEdit}>Save Changes</Button>
+              <Button className="bg-primary hover:bg-[#009edc]" onClick={saveEdit}>
+                Save Changes
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

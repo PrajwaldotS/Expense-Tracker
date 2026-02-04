@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FiSearch } from 'react-icons/fi'
 
 export default function ZoneReportsPage() {
   const [expenses, setExpenses] = useState<any[]>([])
@@ -58,13 +59,7 @@ export default function ZoneReportsPage() {
       )
     }
 
-    const { data, count, error } = await query
-
-    if (error) {
-      console.error(error.message)
-      return
-    }
-
+    const { data, count } = await query
     setExpenses(data || [])
     setTotalPages(Math.ceil((count || 0) / pageSize))
   }
@@ -89,7 +84,6 @@ export default function ZoneReportsPage() {
 
   const saveEdit = async () => {
     if (!editingExpense) return
-
     await supabase.from('expenses').update({
       amount: Number(editForm.amount),
       description: editForm.description,
@@ -101,134 +95,132 @@ export default function ZoneReportsPage() {
   }
 
   return (
-    <ProtectedRoute >
-      <div className="w-5/6 mx-auto mt-20">
+    <ProtectedRoute>
+      <div className="max-w-7xl mx-auto mt-20 px-4 space-y-6">
 
-        <h1 className="text-2xl font-bold mb-2">Zone Expense Reports</h1>
+        {/* HEADER */}
+        <div>
+          <h1 className="text-2xl font-semibold text-[#1e293b]">Zone Expense Reports</h1>
+          <p className="text-sm text-muted-foreground">
+            View and manage expenses grouped across zones, users, and categories
+          </p>
+        </div>
 
-        {/* 🔍 Search */}
-        <Input
-          placeholder="Search user, category, zone or description..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            setPage(1)
-          }}
-          className="mb-4 max-w-md"
-        />
+        {/* SEARCH */}
+        <div className="relative max-w-md">
+          <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
+          <Input
+            placeholder="Search user, category, zone or description..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            className="pl-10 focus-visible:ring-[#00bbf9]"
+          />
+        </div>
 
-        {/* 📊 Table */}
-        <Table className="border rounded-xl">
-          <TableHeader>
-            <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Zone</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Last Expense Date</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {expenses.map((e) => (
-              <TableRow key={e.id}>
-                <TableCell>{e.users?.name || '—'}</TableCell>
-                <TableCell>{e.categories?.name || '—'}</TableCell>
-                <TableCell>{e.zones?.name || '—'}</TableCell>
-                <TableCell>₹{Number(e.amount).toLocaleString('en-IN')}</TableCell>
-                <TableCell>
-                  {e.expense_date
-                    ? new Date(e.expense_date).toLocaleDateString()
-                    : '—'}
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => openEditDialog(e)}>
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => deleteExpense(e.id)}
-                        className="text-red-600"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+        {/* TABLE CARD */}
+        <div className="bg-card border shadow-sm rounded-xl overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/40">
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Zone</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
 
-        {/* 📄 Pagination */}
-        <div className="flex justify-between items-center mt-2">
+            <TableBody>
+              {expenses.map((e) => (
+                <TableRow key={e.id} className="hover:bg-muted/40 transition">
+                  <TableCell className="font-medium">{e.users?.name || '—'}</TableCell>
+                  <TableCell>
+                    <span className="px-2 py-1 rounded-md bg-purple-200 text-purple-600 text-xs">
+                      {e.categories?.name || '—'}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="px-2 py-1 rounded-md bg-cyan-900 text-white text-xs">
+                      {e.zones?.name || '—'}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-semibold text-destructive">
+                    ₹ {Number(e.amount).toLocaleString('en-IN')}
+                  </TableCell>
+                  <TableCell>
+                    {e.expense_date
+                      ? new Date(e.expense_date).toLocaleDateString()
+                      : '—'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEditDialog(e)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => deleteExpense(e.id)} className="text-destructive">
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* PAGINATION */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex gap-2">
             <Button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</Button>
-            <span>Page {page} of {totalPages}</span>
+            <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
             <Button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
           </div>
 
           <select
             value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value))
-              setPage(1)
-            }}
-            className="border rounded px-3 py-2 mb-10"
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }}
+            className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#00f5d4] outline-none"
           >
-            <option value={5}>5 / page</option>
-            <option value={10}>10 / page</option>
-            <option value={20}>20 / page</option>
-            <option value={50}>50 / page</option>
+            <option className='text-foreground bg-card' value={5}>5 / page</option>
+            <option className='text-foreground bg-card' value={10}>10 / page</option>
+            <option className='text-foreground bg-card' value={20}>20 / page</option>
+            <option className='text-foreground bg-card' value={50}>50 / page</option>
           </select>
         </div>
 
-        {/* ✏️ Edit Dialog */}
+        {/* EDIT DIALOG */}
         <Dialog open={!!editingExpense} onOpenChange={() => setEditingExpense(null)}>
-          <DialogContent>
+          <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Edit Expense</DialogTitle>
             </DialogHeader>
 
-            <div className="grid gap-4 py-4">
+            <div className="space-y-4 py-4">
               <div>
                 <Label>Amount</Label>
-                <Input
-                  value={editForm.amount}
-                  onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
-                />
+                <Input value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} />
               </div>
 
               <div>
                 <Label>Description</Label>
-                <Input
-                  value={editForm.description}
-                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                />
+                <Input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
               </div>
 
               <div>
                 <Label>Date</Label>
-                <Input
-                  type="date"
-                  value={editForm.expense_date}
-                  onChange={(e) => setEditForm({ ...editForm, expense_date: e.target.value })}
-                />
+                <Input type="date" value={editForm.expense_date} onChange={(e) => setEditForm({ ...editForm, expense_date: e.target.value })} />
               </div>
             </div>
 
             <DialogFooter>
-              <Button variant="secondary" onClick={() => setEditingExpense(null)}>
-                Cancel
-              </Button>
-              <Button onClick={saveEdit}>Save Changes</Button>
+              <Button variant="secondary" onClick={() => setEditingExpense(null)}>Cancel</Button>
+              <Button className="bg-primary hover:bg-[#009edc]" onClick={saveEdit}>Save Changes</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

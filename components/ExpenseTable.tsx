@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { FiSearch, FiCalendar } from 'react-icons/fi'
 
 export default function ExpenseTable() {
   const [expenses, setExpenses] = useState<any[]>([])
@@ -21,7 +22,6 @@ export default function ExpenseTable() {
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
 
-  // Fetch categories for dropdown
   useEffect(() => {
     supabase.from('categories').select('id, name').then(({ data }) => {
       setCategories(data || [])
@@ -38,30 +38,13 @@ export default function ExpenseTable() {
       .order('expense_date', { ascending: false })
       .range(from, to)
 
-    // 🔍 Search by category name
-    if (search) {
-      query = query.ilike('categories.name', `%${search}%`)
-    }
-
-    // 🔽 Exact category filter
-    if (selectedCategory) {
-      query = query.eq('category_id', selectedCategory)
-    }
-
-    // 📅 Date range
-    if (fromDate) {
-      query = query.gte('expense_date', fromDate)
-    }
-    if (toDate) {
-      query = query.lte('expense_date', toDate)
-    }
+    if (search) query = query.ilike('categories.name', `%${search}%`)
+    if (selectedCategory) query = query.eq('category_id', selectedCategory)
+    if (fromDate) query = query.gte('expense_date', fromDate)
+    if (toDate) query = query.lte('expense_date', toDate)
 
     const { data, count, error } = await query
-
-    if (error) {
-      console.error(error.message)
-      return
-    }
+    if (error) return console.error(error.message)
 
     setExpenses(data || [])
     setTotalPages(Math.ceil((count || 0) / pageSize))
@@ -72,27 +55,27 @@ export default function ExpenseTable() {
   }, [page, pageSize, search, selectedCategory, fromDate, toDate])
 
   return (
-    <div className="w-3/4 mx-auto mt-8">
+    <div className="w-full max-w-7xl mx-auto mt-10 px-4 space-y-6">
 
-      {/* 🔎 Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <input
-          placeholder="Search category..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            setPage(1)
-          }}
-          className="px-4 py-2 border rounded-lg"
-        />
+      {/* 🔎 FILTERS */}
+      <div className="bg-card border shadow-sm rounded-xl p-4 grid gap-4 md:grid-cols-4">
+        
+        {/* Search */}
+        <div className="relative">
+          <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
+          <input
+            placeholder="Search category..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#00bbf9] outline-none"
+          />
+        </div>
 
+        {/* Category */}
         <select
           value={selectedCategory}
-          onChange={(e) => {
-            setSelectedCategory(e.target.value)
-            setPage(1)
-          }}
-          className="px-3 py-2 border rounded-lg"
+          onChange={(e) => { setSelectedCategory(e.target.value); setPage(1) }}
+          className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
         >
           <option value="">All Categories</option>
           {categories.map((c) => (
@@ -100,71 +83,82 @@ export default function ExpenseTable() {
           ))}
         </select>
 
-        <input
-          type="date"
-          value={fromDate}
-          onChange={(e) => {
-            setFromDate(e.target.value)
-            setPage(1)
-          }}
-          className="px-3 py-2 border rounded-lg"
-        />
+        {/* From Date */}
+        <div className="relative">
+          <FiCalendar className="absolute left-3 top-3 text-muted-foreground" />
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => { setFromDate(e.target.value); setPage(1) }}
+            className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#fee440] outline-none"
+          />
+        </div>
 
+        {/* To Date */}
         <input
           type="date"
           value={toDate}
-          onChange={(e) => {
-            setToDate(e.target.value)
-            setPage(1)
-          }}
-          className="px-3 py-2 border rounded-lg"
+          onChange={(e) => { setToDate(e.target.value); setPage(1) }}
+          className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#fee440] outline-none"
         />
       </div>
 
-      {/* 📊 Table */}
-      <Table className="border rounded-xl">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Amount</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Date</TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {expenses.map((e) => (
-            <TableRow key={e.id}>
-              <TableCell className="font-medium">₹{e.amount}</TableCell>
-              <TableCell>{e.categories?.name}</TableCell>
-              <TableCell>{e.description}</TableCell>
-              <TableCell>
-                {e.expense_date
-                  ? new Date(e.expense_date).toLocaleDateString()
-                  : '—'}
-              </TableCell>
+      {/* 📊 TABLE */}
+      <div className="bg-card border shadow-sm rounded-xl overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/40">
+            <TableRow>
+              <TableHead>Amount</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Date</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
 
-      {/* 📄 Pagination + Page Size */}
-      <div className="flex justify-between items-center mt-6">
-        <div className="flex gap-2">
+          <TableBody>
+            {expenses.map((e) => (
+              <TableRow key={e.id} className="hover:bg-muted/40 transition">
+                <TableCell className="font-semibold text-[#f15bb5]">
+                  ₹ {e.amount}
+                </TableCell>
+                <TableCell>
+                  <span className="px-2 py-1 text-xs rounded-md bg-[#9b5de5]/10 text-[#9b5de5]">
+                    {e.categories?.name}
+                  </span>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {e.description}
+                </TableCell>
+                <TableCell>
+                  {e.expense_date
+                    ? new Date(e.expense_date).toLocaleDateString()
+                    : '—'}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* 📄 PAGINATION */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex gap-2 items-center">
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            className="px-3 py-1.5 rounded-md border bg-card hover:bg-muted disabled:opacity-50"
           >
             Prev
           </button>
 
-          <span>Page {page} of {totalPages}</span>
+          <span className="text-sm text-muted-foreground">
+            Page <span className="font-medium text-foreground">{page}</span> of {totalPages}
+          </span>
 
           <button
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            className="px-3 py-1.5 rounded-md border bg-card hover:bg-muted disabled:opacity-50"
           >
             Next
           </button>
@@ -172,16 +166,13 @@ export default function ExpenseTable() {
 
         <select
           value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value))
-            setPage(1)
-          }}
-          className="px-3 py-2 border rounded-lg"
+          onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }}
+          className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#00f5d4] outline-none"
         >
-          <option value={5}>5 / page</option>
-          <option value={10}>10 / page</option>
-          <option value={20}>20 / page</option>
-          <option value={50}>50 / page</option>
+          <option className='bg-card text-foreground' value={5}>5 / page</option>
+          <option className='bg-card text-foreground' value={10}>10 / page</option>
+          <option className='bg-card text-foreground' value={20}>20 / page</option>
+          <option className='bg-card text-foreground' value={50}>50 / page</option>
         </select>
       </div>
     </div>

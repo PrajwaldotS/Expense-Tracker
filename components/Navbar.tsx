@@ -3,12 +3,19 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { SidebarTrigger } from './ui/sidebar'
+import { FiBell } from 'react-icons/fi'
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+import { CgProfile } from "react-icons/cg";
+import { Button } from "@/components/ui/button"
+import ProfileDropdown from './ProfileDropDown'
 
 export default function Navbar() {
   const [role, setRole] = useState<string | null>(null)
-  const [name, setName] = useState<string | null>(null) // ✅ store name
+  const [name, setName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     const getRoleAndName = async () => {
@@ -26,7 +33,7 @@ export default function Navbar() {
         .single()
 
       setRole(data?.role || 'user')
-      setName(data?.name || user.email?.split('@')[0] || 'User') // ✅ fallback
+      setName(data?.name || user.email?.split('@')[0] || 'User')
       setLoading(false)
     }
 
@@ -53,35 +60,43 @@ export default function Navbar() {
   if (loading) return null
 
   return (
-    <nav className="fixed w-full h-16 bg-white/70 backdrop-blur-md border-b border-gray-200  px-6 mt-2 shadow-sm z-50">
-      
-      <div className="relative flex items-center h-14 px-4 lg:px-8 justify-between">
-  
-  {/* LEFT */}
-  <div className="flex items-center">
-    <SidebarTrigger className="p-2 scale-[1.5] rounded-md hover:bg-gray-200 transition" />
-  </div>
+    <nav className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border bg-background/80 backdrop-blur-md shadow-sm">
+      <div className="flex h-full items-center justify-between px-4 lg:px-8">
+        
+        {/* LEFT */}
+        <div className="flex items-center gap-4">
+          <SidebarTrigger className="p-2 rounded-md hover:bg-muted transition" />
+          <h1 className="hidden sm:block text-lg font-semibold tracking-tight text-foreground">
+            Finance Dashboard
+          </h1>
+        </div>
 
-  {/* CENTER */}
-  <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl  lg:text-3xl font-bold text-gray-800 tracking-wide">
-    Expense  Tracker
-  </h1>
+        {/* CENTER (Desktop Title Highlight) */}
+        <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
+          <span className="text-sm font-medium text-muted-foreground">
+            Expense Management System
+          </span>
+        </div>
 
-  {/* RIGHT */}
-  <div className="flex items-center ml-auto">
-    {isLoggedIn && name && (
-      <span className="text-xl text-gray-700 font-medium">
-        Welcome, <br /> {name}
-      </span>
-    )}
-  </div>
+        {/* RIGHT */}
+        <div className="flex items-center gap-4 ml-auto">
+          
+          <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+    >
+      {theme === "dark" ? <Moon size={18}/> : <Sun size={18}/>}
+    </Button>
 
-</div>
-
-
-      
-
-
+          {/* User Info */}
+          {isLoggedIn && name && (
+            <div className="text-right leading-tight">
+              <ProfileDropdown />
+            </div>
+          )}
+        </div>
+      </div>
     </nav>
   )
 }

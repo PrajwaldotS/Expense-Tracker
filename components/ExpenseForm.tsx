@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import CategorySelect from './CategorySelect'
 import ZoneSelect from './ZoneSelect'
+import { FiDollarSign, FiFileText } from 'react-icons/fi'
 
 export default function ExpenseForm() {
   const [zoneId, setZoneId] = useState('')
@@ -31,7 +32,7 @@ export default function ExpenseForm() {
     const { error } = await supabase.from('expenses').insert({
       user_id: user.id,
       category_id: categoryId,
-      zone_id: zoneId, // ✅ ZONE LINKED
+      zone_id: zoneId,
       amount: Number(amount),
       description: desc,
       expense_date: new Date().toISOString().split('T')[0],
@@ -51,36 +52,80 @@ export default function ExpenseForm() {
   }
 
   return (
-    <div className="mt-20 grid grid-cols-1 gap-4 justify-center max-w-md mx-2 bg-black/10 p-6 rounded-md shadow-lg">
-      <h2 className="text-center text-3xl font-bold">Add Expense</h2>
+    <div className="min-h-[70vh]  px-4 mt-20">
+      <div className="w-full max-w-xl bg-card border shadow-sm rounded-xl p-6 space-y-6">
 
-      <CategorySelect value={categoryId} onChange={setCategoryId} />
-      <ZoneSelect value={zoneId} onChange={setZoneId} />
+        {/* HEADER */}
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Add New Expense</h2>
+          <p className="text-sm text-muted-foreground">
+            Record a new transaction for tracking and reporting
+          </p>
+        </div>
 
-      <input
-        placeholder="Amount"
-        value={amount}
-        onChange={e => setAmount(e.target.value)}
-        className="bg-white p-2 rounded-md"
-        type="number"
-      />
+        {/* FORM GRID */}
+        <div className="grid gap-4 md:grid-cols-2">
 
-      <input
-        placeholder="Description"
-        value={desc}
-        onChange={e => setDesc(e.target.value)}
-        className="bg-white p-2 rounded-md"
-      />
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-muted-foreground">Category</label>
+            <CategorySelect value={categoryId} onChange={setCategoryId} />
+          </div>
 
-      <button
-        onClick={addExpense}
-        disabled={loading}
-        className="bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-md disabled:opacity-50"
-      >
-        {loading ? 'Adding...' : 'Add Expense'}
-      </button>
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-muted-foreground">Zone</label>
+            <ZoneSelect value={zoneId} onChange={setZoneId} />
+          </div>
 
-      {msg && <p className="text-center text-sm text-red-600">{msg}</p>}
+          {/* Amount */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-muted-foreground">Amount</label>
+            <div className="relative">
+              <FiDollarSign className="absolute left-3 top-3 text-destructive" />
+              <input
+                placeholder="Enter amount"
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
+                type="number"
+                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#f15bb5] outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-muted-foreground">Description</label>
+            <div className="relative">
+              <FiFileText className="absolute left-3 top-3 text-[#9b5de5]" />
+              <input
+                placeholder="Optional note"
+                value={desc}
+                onChange={e => setDesc(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ACTION BUTTON */}
+        <button
+          onClick={addExpense}
+          disabled={loading}
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 shadow-sm"
+        >
+          {loading ? 'Adding Expense...' : 'Add Expense'}
+        </button>
+
+        {/* MESSAGE */}
+        {msg && (
+          <p className={`text-sm text-center ${
+            msg.includes('success')
+              ? 'text-[#00f5d4]'
+              : 'text-destructive'
+          }`}>
+            {msg}
+          </p>
+        )}
+      </div>
     </div>
   )
 }

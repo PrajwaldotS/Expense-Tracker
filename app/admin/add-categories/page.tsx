@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { FiTag } from 'react-icons/fi'
 
 export default function CategoriesPage() {
   const router = useRouter()
@@ -11,7 +12,6 @@ export default function CategoriesPage() {
   const [msg, setMsg] = useState('')
   const [loading, setLoading] = useState(true)
 
-  // 🔒 Protect route (Admin only)
   useEffect(() => {
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -37,7 +37,6 @@ export default function CategoriesPage() {
     checkAdmin()
   }, [router])
 
-  // ➕ Add category
   const addCategory = async () => {
     setMsg('')
     if (!name.trim()) return setMsg('Enter category name')
@@ -61,30 +60,56 @@ export default function CategoriesPage() {
   if (loading) return <p className="p-6">Loading...</p>
 
   return (
-   <ProtectedRoute>
-       <div className="max-w-md mx-3 mt-20 bg-black/10 shadow-lg rounded-md  p-6">
-      <h2 className="text-3xl font-bold mb-6 text-center">
-        Add New Category
-      </h2>
+    <ProtectedRoute>
+      <div className="min-h-[70vh]  px-4 mt-20">
+        <div className="w-full max-w-lg bg-card border shadow-sm rounded-xl p-6 space-y-6">
 
-      <input
-        className="w-full border bg-white rounded-md px-4 py-2 mb-4"
-        placeholder="Category name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+          {/* HEADER */}
+          <div>
+            <h2 className="text-xl font-semibold text-foreground">
+              Add New Category
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Create a category to organize expense tracking
+            </p>
+          </div>
 
-      <button
-        onClick={addCategory}
-        className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
-      >
-        Add Category
-      </button>
+          {/* INPUT */}
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-muted-foreground">
+              Category Name
+            </label>
+            <div className="relative">
+              <FiTag className="absolute left-3 top-3 text-[#9b5de5]" />
+              <input
+                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
+                placeholder="e.g. Office Supplies"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+          </div>
 
-      {msg && (
-        <p className="mt-4 text-center text-sm text-gray-700">{msg}</p>
-      )}
-    </div>
+          {/* BUTTON */}
+          <button
+            onClick={addCategory}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition shadow-sm"
+          >
+            Add Category
+          </button>
+
+          {/* MESSAGE */}
+          {msg && (
+            <p className={`text-sm text-center ${
+              msg.includes('success')
+                ? 'text-[#00f5d4]'
+                : 'text-destructive'
+            }`}>
+              {msg}
+            </p>
+          )}
+        </div>
+      </div>
     </ProtectedRoute>
   )
 }

@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
-import LogoutButton from '@/components/Logout'
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { FiUsers, FiFolder, FiDollarSign } from 'react-icons/fi'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -12,7 +11,7 @@ export default function AdminDashboard() {
   const [userTotals, setUserTotals] = useState<[string, number][]>([])
   const [categoryTotals, setCategoryTotals] = useState<[string, number][]>([])
   const [loading, setLoading] = useState(true)
- 
+
   // 🔒 Protect admin route
   useEffect(() => {
     const checkAdmin = async () => {
@@ -42,77 +41,132 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchUserTotals()
     fetchCategoryTotals()
+    fetchTotalSpent()
   }, [])
 
- const fetchUserTotals = async () => {
-  const { data, error  } = await supabase
-    .from('admin_user_expense_totals')
-    .select('*')
-if (error) {
-    console.error('User totals error:', error.message)
+  const fetchUserTotals = async () => {
+    const { data, error } = await supabase
+      .from('admin_user_expense_totals')
+      .select('*')
+
+    if (error) {
+      console.error('User totals error:', error.message)
+      setLoading(false)
+      return
+    }
+
+    setUserTotals(data || [])
     setLoading(false)
-    return
   }
 
-  setUserTotals(data || [])
-  setLoading(false)
-}
- const fetchCategoryTotals = async () => {
-  const { data,error } = await supabase
-    .from('admin_category_expense_totals')
-    .select('*')
+  const fetchCategoryTotals = async () => {
+    const { data, error } = await supabase
+      .from('admin_category_expense_totals')
+      .select('*')
 
-  if (error) {
-    console.error('Category totals error:', error.message)
-    return
+    if (error) {
+      console.error('Category totals error:', error.message)
+      return
+    }
+
+    setCategoryTotals(data || [])
   }
 
-  setCategoryTotals(data || [])
-}
-const fetchTotalSpent = async () => {
-  const { data, error } = await supabase
-    .from('expenses')
-    .select('amount')
+  const fetchTotalSpent = async () => {
+    const { data, error } = await supabase
+      .from('expenses')
+      .select('amount')
 
-  if (error) {
-    console.error(error.message)
-    return
+    if (error) {
+      console.error(error.message)
+      return
+    }
+
+    const total = data.reduce((sum, e) => sum + e.amount, 0)
+    setTotalSpent(total)
   }
 
-  const total = data.reduce((sum, e) => sum + e.amount, 0)
-  setTotalSpent(total)
-}
-// to calucate the total expense
- useEffect(() => {
-  fetchTotalSpent()
-  console.log(userTotals)
-
-}, [])
-
-
-  if (loading) return <p>Loading admin insights...</p>
+  if (loading) return <p className="p-6">Loading admin insights...</p>
 
   return (
-    
-    <div className=' my-20'>
-      <h1 className='text-3xl text-center font-bold mb-4'>Admin Dashboard</h1>
-    <div className='lg:h-[15dvh] h-[20dvh] mx-5 bg-gray-200 rounded-xl'>
-      <h1 className='text-3xl text-center mt-4 text-black'>Total Amount By the Users <br /> ₹{totalSpent.toLocaleString('en-IN')}</h1>
-    </div>
-    <div className='grid grid-cols-1 gap-4 justify-center my-4'>
-      <div className="h-full mx-5 bg-gray-200 rounded-xl">
-      <h2 className='text-3xl text-center mt-4 text-black'>Total Expense Per Category</h2>
-      <div className='flex flex-wrap justify-center gap-4 p-4'>
-        {categoryTotals.map((c: any) => (
-          <div key={c.category_id} className='text-black h-10 my-8  m-4 flex items-center justify-between rounded-lg'>
-            <h2 className="text-xl bg-black/10 p-4 rounded">{c.name} <br /> ₹{c.total.toLocaleString('en-IN')} </h2>
-            
+    <div className="p-6 space-y-8 mt-16">
+
+      {/* PAGE HEADER */}
+      <div>
+        <h1 className="text-2xl font-semibold text-[#1e293b]">Admin Financial Overview</h1>
+        <p className="text-sm text-muted-foreground">
+          Snapshot of user spending and category distribution
+        </p>
+      </div>
+
+      {/* SUMMARY CARDS */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        
+        {/* TOTAL SPENT */}
+        <div className="rounded-xl bg-white shadow-sm border p-5 flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-[#f15bb5]/10 text-[#f15bb5]">
+            <FiDollarSign size={22} />
           </div>
-        ))}
+          <div>
+            <p className="text-sm text-muted-foreground">Total Expenses</p>
+            <p className="text-xl font-semibold text-[#1e293b]">
+              ₹ {totalSpent.toLocaleString('en-IN')}
+            </p>
+          </div>
+        </div>
+
+        {/* TOTAL USERS */}
+        <div className="rounded-xl bg-white shadow-sm border p-5 flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-[#00bbf9]/10 text-[#00bbf9]">
+            <FiUsers size={22} />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Active Users</p>
+            <p className="text-xl font-semibold text-[#1e293b]">
+              {userTotals.length}
+            </p>
+          </div>
+        </div>
+
+        {/* TOTAL CATEGORIES */}
+        <div className="rounded-xl bg-white shadow-sm border p-5 flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-[#9b5de5]/10 text-[#9b5de5]">
+            <FiFolder size={22} />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Expense Categories</p>
+            <p className="text-xl font-semibold text-[#1e293b]">
+              {categoryTotals.length}
+            </p>
+          </div>
+        </div>
+
       </div>
+
+      {/* SECONDARY INFO PANELS */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        
+        {/* USER SUMMARY PANEL */}
+        <div className="bg-white border shadow-sm rounded-xl p-5">
+          <h2 className="text-lg font-semibold text-[#1e293b] mb-2">
+            User Expense Distribution
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Overview of total expenses grouped by users.
+          </p>
+        </div>
+
+        {/* CATEGORY SUMMARY PANEL */}
+        <div className="bg-white border shadow-sm rounded-xl p-5">
+          <h2 className="text-lg font-semibold text-[#1e293b] mb-2">
+            Category Expense Distribution
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Overview of spending patterns by category.
+          </p>
+        </div>
+
       </div>
-    </div>
     </div>
   )
 }
-

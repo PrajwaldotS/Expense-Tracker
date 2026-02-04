@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { FiMapPin } from 'react-icons/fi'
 
 type Zone = {
   id: string
@@ -28,14 +29,12 @@ export default function ZoneSelect({
         return
       }
 
-      // 🔹 Get role
       const { data: userData } = await supabase
         .from('users')
         .select('role')
         .eq('id', user.id)
         .single()
 
-      // 🟣 ADMIN → All zones
       if (userData?.role === 'admin') {
         const { data } = await supabase
           .from('zones')
@@ -47,7 +46,6 @@ export default function ZoneSelect({
         return
       }
 
-      // 🔵 USER → Only assigned zones
       const { data } = await supabase
         .from('user_zones')
         .select('zones(id, name)')
@@ -58,7 +56,6 @@ export default function ZoneSelect({
 
       setZones(assignedZones)
 
-      // Auto-select if only one zone
       if (assignedZones.length === 1) {
         onChange(assignedZones[0].id)
       }
@@ -70,26 +67,29 @@ export default function ZoneSelect({
   }, [onChange])
 
   return (
-    <div className="bg-white p-2 rounded-md">
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        disabled={loading || zones.length === 0}
-        className="w-full"
-      >
-        <option value="">
-          {loading ? 'Loading zones...' : 'Select Zone'}
-        </option>
-
-        {zones.map((z) => (
-          <option key={z.id} value={z.id}>
-            {z.name}
+    <div className="space-y-1">
+      <div className="relative">
+        <FiMapPin className="absolute left-3 top-3 text-[#00bbf9]" />
+        <select
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          disabled={loading || zones.length === 0}
+          className="w-full pl-10 pr-3 py-2 border rounded-lg bg-card focus:ring-2 focus:ring-[#00bbf9] outline-none text-sm disabled:opacity-60"
+        >
+          <option value="">
+            {loading ? 'Loading zones...' : 'Select Zone'}
           </option>
-        ))}
-      </select>
+
+          {zones.map((z) => (
+            <option key={z.id} value={z.id}>
+              {z.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {!loading && zones.length === 0 && (
-        <p className="text-xs text-red-500 mt-1">
+        <p className="text-xs text-[#f15bb5] font-medium">
           No zones assigned to you
         </p>
       )}
