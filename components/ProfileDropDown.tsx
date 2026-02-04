@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { CgProfile } from 'react-icons/cg'
+import { usePathname } from 'next/navigation'
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,7 +55,7 @@ export default function ProfileDropdown() {
         </DropdownMenuLabel>
 
         
-
+         
         <DropdownMenuItem asChild >
           <Logout />
         </DropdownMenuItem>

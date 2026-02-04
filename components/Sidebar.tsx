@@ -9,6 +9,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  SidebarMenu,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import Link from 'next/link'
@@ -20,7 +21,12 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion"
-
+import { FaUser } from "react-icons/fa";
+import { RiAdminFill } from "react-icons/ri";
+import { BiSolidCategory } from "react-icons/bi";
+import { FaMoneyBillTrendUp } from "react-icons/fa6";
+import { RiTimeZoneLine } from "react-icons/ri";
+import { MdAccountCircle } from "react-icons/md";
 import {
   FiUsers,
   FiFolder,
@@ -75,13 +81,16 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
 
-      <SidebarHeader className="px-5 pt-6 lg:mt-14">
-        <h2 className="text-xl font-semibold tracking-tight text-sidebar-foreground">
-          {role === 'admin' ? 'Admin Panel' : 'User Panel'}
-        </h2>
-        <p className="text-xs text-muted-foreground">Finance Management</p>
-        <Separator />
-      </SidebarHeader>
+      <SidebarHeader className="px-3 pt-6 lg:mt-14">
+  <SidebarMenu>
+    <SidebarMenuButton className="text-sidebar-foreground text-base  font-semibold">
+      <RiAdminFill className="text-2xl text-brand shrink-0"  />
+      <span>{role === 'admin' ? 'Admin Panel' : 'User Panel'}</span>
+    </SidebarMenuButton>
+  </SidebarMenu>
+  <Separator className="mt-3" />
+</SidebarHeader>
+
 
       <SidebarContent className="px-3 space-y-2">
 
@@ -91,13 +100,13 @@ export function AppSidebar() {
             {/* USERS */}
             <AccordionItem value="users" className="border-none">
               <AccordionTrigger
-                className={`px-3 py-2 text-xs uppercase tracking-wider hover:no-underline ${
+                className={`px-3 py-2 text-xs  uppercase tracking-wider hover:no-underline ${
                   isGroupActive(['/admin/add-user', '/admin/manage-users', '/admin/users'])
                     ? 'text-brand'
                     : 'text-muted-foreground'
                 }`}
-              >
-                User Management
+              > <FaUser className="inline mb-1 mr-2 text-brand rotate-0! " size={20}/>
+                User 
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-user" label="Add User" icon={FiPlusCircle} pathname={pathname} />
@@ -115,7 +124,7 @@ export function AppSidebar() {
                     : 'text-muted-foreground'
                 }`}
               >
-                Categories
+              <BiSolidCategory className="inline mb-1 mr-2 text-brand rotate-0!" size={20} /> Categories 
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-categories" label="Add Category" icon={FiPlusCircle} pathname={pathname} />
@@ -133,7 +142,7 @@ export function AppSidebar() {
                     : 'text-muted-foreground'
                 }`}
               >
-                Expenses
+               <FaMoneyBillTrendUp className="inline mb-1 mr-2 text-brand rotate-0!" size={20} /> Expenses
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
@@ -150,7 +159,7 @@ export function AppSidebar() {
                     : 'text-muted-foreground'
                 }`}
               >
-                Zones
+              <RiTimeZoneLine className="inline mb-1 mr-2 text-brand rotate-0!" size={20} /> Zones
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-zone" label="Add Zone" icon={FiPlusCircle} pathname={pathname} />
@@ -170,12 +179,30 @@ export function AppSidebar() {
         )}
 
         {/* ACCOUNT */}
-        <SidebarGroup>
-          <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
-            Account
-          </SidebarMenuButton>
-          <NavItem href="/change-password" label="Change Password" icon={FiLock} pathname={pathname} />
-        </SidebarGroup>
+        <Accordion type='single' collapsible className="border-none">
+          <AccordionItem value="account" className="border-none">
+            <AccordionTrigger
+              className={`px-4 py-2 text-xs uppercase tracking-wider hover:no-underline ${
+                pathname.startsWith('/change-password')
+                  ? 'text-brand'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              <MdAccountCircle className="mr-2 text-brand shrink-0 rotate-0!" size={18} />
+              Account
+            </AccordionTrigger>
+            
+            <AccordionContent className="space-y-1 pt-1">
+              <NavItem
+                href="/change-password"
+                label="Change Password"
+                icon={FiLock}
+                pathname={pathname}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+            
 
       </SidebarContent>
 

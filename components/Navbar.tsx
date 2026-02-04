@@ -66,14 +66,12 @@ export default function Navbar() {
         {/* LEFT */}
         <div className="flex items-center gap-4">
           <SidebarTrigger className="p-2 rounded-md hover:bg-muted transition" />
-          <h1 className="hidden sm:block text-lg font-semibold tracking-tight text-foreground">
-            Finance Dashboard
-          </h1>
+          
         </div>
 
         {/* CENTER (Desktop Title Highlight) */}
         <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
-          <span className="text-sm font-medium text-muted-foreground">
+          <span className="text-xl font-bold text-foreground">
             Expense Management System
           </span>
         </div>
