@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
-import { FiUsers, FiFolder, FiDollarSign } from 'react-icons/fi'
+import { FiUsers, FiFolder, FiDollarSign, FiMapPin } from 'react-icons/fi'
 
 export default function AdminDashboard() {
   const router = useRouter()
   const [totalSpent, setTotalSpent] = useState(0)
-  const [userTotals, setUserTotals] = useState<[string, number][]>([])
-  const [categoryTotals, setCategoryTotals] = useState<[string, number][]>([])
+  const [userTotals, setUserTotals] = useState<any[]>([])
+  const [categoryTotals, setCategoryTotals] = useState<any[]>([])
+  const [zoneTotal, setZoneTotal] = useState(0)
   const [loading, setLoading] = useState(true)
 
   // 🔒 Protect admin route
@@ -17,21 +18,15 @@ export default function AdminDashboard() {
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser()
 
-      if (!user) {
-        router.push('/login')
-        return
-      }
+      if (!user) return router.push('/login')
 
       const { data } = await supabase
         .from('users')
         .select('role')
         .eq('id', user.id)
-        .order('created_at', { ascending: false })
         .single()
 
-      if (data?.role !== 'admin') {
-        router.push('/Dashboard')
-      }
+      if (data?.role !== 'admin') router.push('/Dashboard')
     }
 
     checkAdmin()
@@ -42,6 +37,7 @@ export default function AdminDashboard() {
     fetchUserTotals()
     fetchCategoryTotals()
     fetchTotalSpent()
+    fetchTotalZones()
   }, [])
 
   const fetchUserTotals = async () => {
@@ -49,13 +45,7 @@ export default function AdminDashboard() {
       .from('admin_user_expense_totals')
       .select('*')
 
-    if (error) {
-      console.error('User totals error:', error.message)
-      setLoading(false)
-      return
-    }
-
-    setUserTotals(data || [])
+    if (!error) setUserTotals(data || [])
     setLoading(false)
   }
 
@@ -64,25 +54,20 @@ export default function AdminDashboard() {
       .from('admin_category_expense_totals')
       .select('*')
 
-    if (error) {
-      console.error('Category totals error:', error.message)
-      return
-    }
+    if (!error) setCategoryTotals(data || [])
+  }
 
-    setCategoryTotals(data || [])
+  const fetchTotalZones = async () => {
+    const { count } = await supabase
+      .from('zones')
+      .select('*', { count: 'exact', head: true })
+
+    setZoneTotal(count || 0)
   }
 
   const fetchTotalSpent = async () => {
-    const { data, error } = await supabase
-      .from('expenses')
-      .select('amount')
-
-    if (error) {
-      console.error(error.message)
-      return
-    }
-
-    const total = data.reduce((sum, e) => sum + e.amount, 0)
+    const { data } = await supabase.from('expenses').select('amount')
+    const total = data?.reduce((sum, e) => sum + e.amount, 0) || 0
     setTotalSpent(total)
   }
 
@@ -93,77 +78,65 @@ export default function AdminDashboard() {
 
       {/* PAGE HEADER */}
       <div>
-        <h1 className="text-2xl font-semibold text-[#1e293b]">Admin Financial Overview</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Admin Financial Overview</h1>
         <p className="text-sm text-muted-foreground">
-          Snapshot of user spending and category distribution
+          Snapshot of system-wide financial activity
         </p>
       </div>
 
-      {/* SUMMARY CARDS */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        
-        {/* TOTAL SPENT */}
-        <div className="rounded-xl bg-white shadow-sm border p-5 flex items-center gap-4">
-          <div className="p-3 rounded-lg bg-[#f15bb5]/10 text-[#f15bb5]">
-            <FiDollarSign size={22} />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Total Expenses</p>
-            <p className="text-xl font-semibold text-[#1e293b]">
-              ₹ {totalSpent.toLocaleString('en-IN')}
-            </p>
-          </div>
+      {/* 💰 HERO CARD — FULL WIDTH */}
+      <div className="rounded-2xl bg-card border shadow-sm p-8 flex items-center gap-6">
+        <div className="p-4 rounded-xl bg-[#f15bb5]/10 text-[#f15bb5]">
+          <FiDollarSign size={32} />
         </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Total Expenses</p>
+          <p className="text-3xl font-bold text-[#f15bb5] mt-1">
+            ₹ {totalSpent.toLocaleString('en-IN')}
+          </p>
+        </div>
+      </div>
 
-        {/* TOTAL USERS */}
-        <div className="rounded-xl bg-white shadow-sm border p-5 flex items-center gap-4">
+      {/* 📊 SECOND ROW — 3 EQUAL CARDS */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+        {/* USERS */}
+        <div className="rounded-xl bg-card border shadow-sm p-5 flex items-center gap-4">
           <div className="p-3 rounded-lg bg-[#00bbf9]/10 text-[#00bbf9]">
             <FiUsers size={22} />
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Active Users</p>
-            <p className="text-xl font-semibold text-[#1e293b]">
+            <p className="text-xl font-semibold text-[#00bbf9]">
               {userTotals.length}
             </p>
           </div>
         </div>
 
-        {/* TOTAL CATEGORIES */}
-        <div className="rounded-xl bg-white shadow-sm border p-5 flex items-center gap-4">
+        {/* ZONES */}
+        <div className="rounded-xl bg-card border shadow-sm p-5 flex items-center gap-4">
+          <div className="p-3 rounded-lg bg-[#00f5d4]/10 text-[#00f5d4]">
+            <FiMapPin size={22} />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Zones</p>
+            <p className="text-xl font-semibold text-[#00f5d4]">
+              {zoneTotal}
+            </p>
+          </div>
+        </div>
+
+        {/* CATEGORIES */}
+        <div className="rounded-xl bg-card border shadow-sm p-5 flex items-center gap-4">
           <div className="p-3 rounded-lg bg-[#9b5de5]/10 text-[#9b5de5]">
             <FiFolder size={22} />
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Expense Categories</p>
-            <p className="text-xl font-semibold text-[#1e293b]">
+            <p className="text-xl font-semibold text-[#9b5de5]">
               {categoryTotals.length}
             </p>
           </div>
-        </div>
-
-      </div>
-
-      {/* SECONDARY INFO PANELS */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        
-        {/* USER SUMMARY PANEL */}
-        <div className="bg-white border shadow-sm rounded-xl p-5">
-          <h2 className="text-lg font-semibold text-[#1e293b] mb-2">
-            User Expense Distribution
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Overview of total expenses grouped by users.
-          </p>
-        </div>
-
-        {/* CATEGORY SUMMARY PANEL */}
-        <div className="bg-white border shadow-sm rounded-xl p-5">
-          <h2 className="text-lg font-semibold text-[#1e293b] mb-2">
-            Category Expense Distribution
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Overview of spending patterns by category.
-          </p>
         </div>
 
       </div>
