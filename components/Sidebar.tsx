@@ -15,6 +15,13 @@ import Link from 'next/link'
 import { Separator } from './ui/separator'
 import { usePathname } from 'next/navigation'
 import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion"
+
+import {
   FiUsers,
   FiFolder,
   FiDollarSign,
@@ -61,61 +68,98 @@ export function AppSidebar() {
 
   if (!isLoggedIn) return null
 
+  const isGroupActive = (paths: string[]) => {
+    return paths.some((path) => pathname.startsWith(path))
+  }
+
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
 
-      {/* HEADER */}
       <SidebarHeader className="px-5 pt-6 lg:mt-14">
         <h2 className="text-xl font-semibold tracking-tight text-sidebar-foreground">
           {role === 'admin' ? 'Admin Panel' : 'User Panel'}
         </h2>
         <p className="text-xs text-muted-foreground">Finance Management</p>
-        <Separator className="" />
+        <Separator />
       </SidebarHeader>
 
-      <SidebarContent className="px-3 space-y-6">
+      <SidebarContent className="px-3 space-y-2">
 
         {role === 'admin' && (
-          <>
+          <Accordion type="single" collapsible className="w-full space-y-2">
+
             {/* USERS */}
-            <SidebarGroup>
-              <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+            <AccordionItem value="users" className="border-none">
+              <AccordionTrigger
+                className={`px-3 py-2 text-xs uppercase tracking-wider hover:no-underline ${
+                  isGroupActive(['/admin/add-user', '/admin/manage-users', '/admin/users'])
+                    ? 'text-brand'
+                    : 'text-muted-foreground'
+                }`}
+              >
                 User Management
-              </SidebarMenuButton>
-              <NavItem href="/admin/add-user" label="Add User" icon={FiPlusCircle} pathname={pathname} />
-              <NavItem href="/admin/manage-users" label="Manage Users" icon={FiUsers} pathname={pathname} />
-              <NavItem href="/admin/users" label="Expense Report" icon={FiBarChart2} pathname={pathname} />
-            </SidebarGroup>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-1 pt-1">
+                <NavItem href="/admin/add-user" label="Add User" icon={FiPlusCircle} pathname={pathname} />
+                <NavItem href="/admin/manage-users" label="Manage Users" icon={FiUsers} pathname={pathname} />
+                <NavItem href="/admin/users" label="Expense Report" icon={FiBarChart2} pathname={pathname} />
+              </AccordionContent>
+            </AccordionItem>
 
             {/* CATEGORIES */}
-            <SidebarGroup>
-              <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+            <AccordionItem value="categories" className="border-none">
+              <AccordionTrigger
+                className={`px-3 py-2 text-xs uppercase tracking-wider hover:no-underline ${
+                  isGroupActive(['/admin/add-categories', '/admin/manage-categories', '/admin/categories'])
+                    ? 'text-brand'
+                    : 'text-muted-foreground'
+                }`}
+              >
                 Categories
-              </SidebarMenuButton>
-              <NavItem href="/admin/add-categories" label="Add Category" icon={FiPlusCircle} pathname={pathname} />
-              <NavItem href="/admin/manage-categories" label="Manage Categories" icon={FiFolder} pathname={pathname} />
-              <NavItem href="/admin/categories" label="Category Report" icon={FiBarChart2} pathname={pathname} />
-            </SidebarGroup>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-1 pt-1">
+                <NavItem href="/admin/add-categories" label="Add Category" icon={FiPlusCircle} pathname={pathname} />
+                <NavItem href="/admin/manage-categories" label="Manage Categories" icon={FiFolder} pathname={pathname} />
+                <NavItem href="/admin/categories" label="Category Report" icon={FiBarChart2} pathname={pathname} />
+              </AccordionContent>
+            </AccordionItem>
 
             {/* EXPENSES */}
-            <SidebarGroup>
-              <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+            <AccordionItem value="expenses" className="border-none">
+              <AccordionTrigger
+                className={`px-3 py-2 text-xs uppercase tracking-wider hover:no-underline ${
+                  isGroupActive(['/admin/add-expense', '/admin/manage-expenses'])
+                    ? 'text-brand'
+                    : 'text-muted-foreground'
+                }`}
+              >
                 Expenses
-              </SidebarMenuButton>
-              <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
-              <NavItem href="/admin/manage-expenses" label="Manage Expenses" icon={FiDollarSign} pathname={pathname} />
-            </SidebarGroup>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-1 pt-1">
+                <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
+                <NavItem href="/admin/manage-expenses" label="Manage Expenses" icon={FiDollarSign} pathname={pathname} />
+              </AccordionContent>
+            </AccordionItem>
 
             {/* ZONES */}
-            <SidebarGroup>
-              <SidebarMenuButton className="text-xs uppercase tracking-wider text-muted-foreground">
+            <AccordionItem value="zones" className="border-none">
+              <AccordionTrigger
+                className={`px-3 py-2 text-xs uppercase tracking-wider hover:no-underline ${
+                  isGroupActive(['/admin/add-zone', '/admin/manage-zones', '/admin/zone'])
+                    ? 'text-brand'
+                    : 'text-muted-foreground'
+                }`}
+              >
                 Zones
-              </SidebarMenuButton>
-              <NavItem href="/admin/add-zone" label="Add Zone" icon={FiPlusCircle} pathname={pathname} />
-              <NavItem href="/admin/manage-zones" label="Manage Zones" icon={FiMapPin} pathname={pathname} />
-              <NavItem href="/admin/zone" label="Zone Report" icon={FiBarChart2} pathname={pathname} />
-            </SidebarGroup>
-          </>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-1 pt-1">
+                <NavItem href="/admin/add-zone" label="Add Zone" icon={FiPlusCircle} pathname={pathname} />
+                <NavItem href="/admin/manage-zones" label="Manage Zones" icon={FiMapPin} pathname={pathname} />
+                <NavItem href="/admin/zone" label="Zone Report" icon={FiBarChart2} pathname={pathname} />
+              </AccordionContent>
+            </AccordionItem>
+
+          </Accordion>
         )}
 
         {role === 'user' && (
@@ -136,11 +180,11 @@ export function AppSidebar() {
       </SidebarContent>
 
       
+
     </Sidebar>
   )
 }
 
-/* 🔹 Enhanced Nav Item */
 function NavItem({
   href,
   label,

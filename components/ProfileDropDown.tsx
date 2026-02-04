@@ -49,7 +49,7 @@ export default function ProfileDropdown() {
             <h1 className="text-center text-lg mb-2">Welcome , {name}</h1>
             <Separator/>
           
-          <span className=" text-muted-foreground font-bold text-center capitalize">{role}</span>
+          <span className=" text-muted-foreground text-lg font-bold text-center capitalize">{role}</span>
         </DropdownMenuLabel>
 
         

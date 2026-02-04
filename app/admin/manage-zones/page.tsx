@@ -145,7 +145,7 @@ export default function ZoneReportsPage() {
                       {e.zones?.name || '—'}
                     </span>
                   </TableCell>
-                  <TableCell className="font-semibold text-destructive">
+                  <TableCell className="font-semibold text-[#f15bb5]">
                     ₹ {Number(e.amount).toLocaleString('en-IN')}
                   </TableCell>
                   <TableCell>
