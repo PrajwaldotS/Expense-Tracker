@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
@@ -65,7 +63,7 @@ export default function CategoriesPage() {
       <div className="min-h-[70vh]  px-4 mt-20">
         <div className="w-full max-w-lg bg-card border shadow-sm rounded-xl p-6 space-y-6">
 
-          {/* HEADER */}
+          
           <div>
             <h2 className="text-xl font-semibold text-foreground">
               Add New Category
@@ -75,7 +73,7 @@ export default function CategoriesPage() {
             </p>
           </div>
 
-          {/* INPUT */}
+          
           <div className="space-y-1">
             <label className="text-sm font-medium text-muted-foreground">
               Category Name
@@ -90,12 +88,9 @@ export default function CategoriesPage() {
               />
             </div>
           </div>
-
-          {/* BUTTON */}
           <button
             onClick={addCategory}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition shadow-sm"
-          >
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition shadow-sm">
             Add Category
           </button>
           <FormResetButton onReset={() => setName('')} />
