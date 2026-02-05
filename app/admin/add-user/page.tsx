@@ -54,10 +54,8 @@ export default function CreateUserPage() {
 
           {/* HEADER */}
           <div>
-            <h2 className="text-xl font-semibold text-foreground
-">Create New User</h2>
-            <p className="text-sm  text-foreground
-">
+            <h2 className="text-xl font-semibold text-foreground">Create New User</h2>
+            <p className="text-sm  text-muted-foreground">
               Add a new member to the finance system
             </p>
           </div>
@@ -67,8 +65,7 @@ export default function CreateUserPage() {
 
             {/* Name */}
             <div className="space-y-1">
-              <label className="text-sm font-medium  text-foreground
-">Full Name</label>
+              <label className="text-sm font-medium  text-foreground">Full Name</label>
               <div className="relative">
                 <FiUser className="absolute left-3 top-3 text-[#9b5de5]" />
                 <input
@@ -82,8 +79,7 @@ export default function CreateUserPage() {
 
             {/* Email */}
             <div className="space-y-1">
-              <label className="text-sm font-medium  text-foreground
-">Email Address</label>
+              <label className="text-sm font-medium  text-foreground">Email Address</label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-3 text-[#00bbf9]" />
                 <input
@@ -97,8 +93,7 @@ export default function CreateUserPage() {
 
             {/* Password */}
             <div className="space-y-1">
-              <label className="text-sm font-medium  text-foreground
-">Temporary Password</label>
+              <label className="text-sm font-medium  text-foreground">Temporary Password</label>
               <div className="relative">
                 <FiLock className="absolute left-3 top-3 text-[#f15bb5]" />
                 <input

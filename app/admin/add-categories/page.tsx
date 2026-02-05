@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { FiTag } from 'react-icons/fi'
+import FormResetButton from '@/components/Resetbutton'
 
 export default function CategoriesPage() {
   const router = useRouter()
@@ -97,6 +98,7 @@ export default function CategoriesPage() {
           >
             Add Category
           </button>
+          <FormResetButton onReset={() => setName('')} />
 
           {/* MESSAGE */}
           {msg && (

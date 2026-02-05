@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabaseClient'
 import CategorySelect from './CategorySelect'
 import ZoneSelect from './ZoneSelect'
 import { FiDollarSign, FiFileText } from 'react-icons/fi'
+import { Form } from 'lucide-react'
+import FormResetButton from './Resetbutton'
 
 export default function ExpenseForm() {
   const [zoneId, setZoneId] = useState('')
@@ -114,6 +116,12 @@ export default function ExpenseForm() {
         >
           {loading ? 'Adding Expense...' : 'Add Expense'}
         </button>
+        <FormResetButton onReset={() => {
+          setAmount('')
+          setDesc('')
+          setCategoryId('')
+          setZoneId('')
+        }}/>
 
         {/* MESSAGE */}
         {msg && (

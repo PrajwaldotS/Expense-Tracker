@@ -3,20 +3,11 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-} from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table'
+import {DropdownMenu, DropdownMenuContent,DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 import { Button } from '@/components/ui/button'
 import { MoreHorizontal } from 'lucide-react'
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
-} from '@/components/ui/dialog'
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FiSearch } from 'react-icons/fi'
