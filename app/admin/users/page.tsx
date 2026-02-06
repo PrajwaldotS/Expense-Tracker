@@ -14,6 +14,16 @@ import {
 import { useRouter } from 'next/navigation'
 import {  FiSearch } from 'react-icons/fi'
 import { FaRupeeSign } from "react-icons/fa";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts'
+
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -44,6 +54,10 @@ export default function AdminDashboard() {
     if (data?.role !== 'admin') router.push('/Dashboard')
     else setLoading(false)
   }
+  const barChartData = userTotals.map((u) => ({
+  name: u.name,
+  total: Number(u.total) || 0,
+}))
 
   const fetchUserTotals = async () => {
     const { data, error } = await supabase
@@ -105,6 +119,56 @@ export default function AdminDashboard() {
             </p>
           </div>
         </div>
+        {/* USER EXPENSE BAR CHART */}
+      <div className="bg-card border shadow-sm rounded-xl p-6">
+  <h2 className="text-lg font-semibold text-foreground mb-1">
+    User-wise Expense Distribution
+  </h2>
+  <p className="text-sm text-muted-foreground mb-4">
+    Comparison of total expenses across users
+  </p>
+
+  {barChartData.length === 0 ? (
+    <p className="text-sm text-muted-foreground">No data available</p>
+  ) : (
+    <div className="w-full h-80">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={barChartData}>
+          <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 12 }}
+            interval={0}
+            angle={-25}
+            textAnchor="end"
+          />
+
+          <YAxis
+            tickFormatter={(value) =>
+              typeof value === 'number'
+                ? `₹${value / 1000}k`
+                : ''
+            }
+          />
+
+          <Tooltip
+            formatter={(value) => {
+              if (typeof value !== 'number') return '₹ 0'
+              return `₹ ${value.toLocaleString('en-IN')}`
+            }}
+          />
+
+          <Bar
+            dataKey="total"
+            fill="#f15bb5"
+            radius={[6, 6, 0, 0]}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )}
+      </div>
 
         {/* SEARCH */}
         <div className="relative max-w-sm">

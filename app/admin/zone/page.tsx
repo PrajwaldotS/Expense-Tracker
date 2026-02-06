@@ -17,6 +17,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
+import { Divide } from 'lucide-react'
 
 export default function ZoneSummaryPage() {
   const [zones, setZones] = useState<any[]>([])
@@ -105,9 +106,15 @@ export default function ZoneSummaryPage() {
             ))}
           </Pie>
 
-          <Tooltip
-            formatter={(value: number) => `₹ ${value.toLocaleString('en-IN')}`}
+         <Tooltip
+            formatter={(value) => {
+              if (typeof value !== 'number') return '₹ 0'
+              return (
+                <div className="">₹ {value.toLocaleString('en-IN')}</div>
+              )
+            }}
           />
+
 
           <Legend
             verticalAlign="bottom"

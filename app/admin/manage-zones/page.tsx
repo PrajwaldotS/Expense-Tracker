@@ -91,7 +91,7 @@ export default function ZoneReportsPage() {
 
         {/* HEADER */}
         <div>
-          <h1 className="text-2xl font-semibold text-[#1e293b]">Zone Expense Reports</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Zone Expense Reports</h1>
           <p className="text-sm text-muted-foreground">
             View and manage expenses grouped across zones, users, and categories
           </p>

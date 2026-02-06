@@ -13,6 +13,16 @@ import {
 } from '@/components/ui/table'
 import { useRouter } from 'next/navigation'
 import { FiSearch, FiPieChart } from 'react-icons/fi'
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts'
+
 
 export default function CategoriesPage() {
   const router = useRouter()
@@ -73,6 +83,10 @@ export default function CategoriesPage() {
     (page - 1) * pageSize,
     page * pageSize
   )
+  const areaChartData = categoryTotals.map((c) => ({
+  name: c.name,
+  total: Number(c.total) || 0,
+}))
 
   useEffect(() => {
     if (page > totalPages) setPage(1)
@@ -104,6 +118,59 @@ export default function CategoriesPage() {
             </p>
           </div>
         </div>
+            {/* CATEGORY EXPENSE AREA CHART */}
+<div className="bg-card border shadow-sm rounded-xl p-6">
+  <h2 className="text-lg font-semibold text-foreground mb-1">
+    Category-wise Expense Distribution
+  </h2>
+  <p className="text-sm text-muted-foreground mb-4">
+    Visual comparison of expenses across categories
+  </p>
+
+  {areaChartData.length === 0 ? (
+    <p className="text-sm text-muted-foreground">No data available</p>
+  ) : (
+    <div className="w-full h-[320px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={areaChartData}>
+          <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 12 }}
+            interval={0}
+            angle={-25}
+            textAnchor="end"
+          />
+
+          <YAxis
+            tickFormatter={(value) =>
+              typeof value === 'number'
+                ? `₹${value / 1000}k`
+                : ''
+            }
+          />
+
+          <Tooltip
+            formatter={(value) => {
+              if (typeof value !== 'number') return '₹ 0'
+              return `₹ ${value.toLocaleString('en-IN')}`
+            }}
+          />
+
+          <Area
+            type="monotone"
+            dataKey="total"
+            stroke="#9b5de5"
+            fill="#9b5de5"
+            fillOpacity={0.25}
+            strokeWidth={2}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  )}
+</div>
 
         {/* SEARCH */}
         <div className="relative max-w-sm">
