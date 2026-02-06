@@ -82,15 +82,14 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
 
       <SidebarHeader className="px-3 pt-6 lg:mt-14">
-  <SidebarMenu>
-    <SidebarMenuButton className="text-sidebar-foreground text-base  font-semibold">
-      <RiAdminFill className="text-2xl text-brand shrink-0"  />
-      <span>{role === 'admin' ? 'Admin Panel' : 'User Panel'}</span>
-    </SidebarMenuButton>
-  </SidebarMenu>
-  <Separator className="mt-3" />
-</SidebarHeader>
-
+        <SidebarMenu>
+          <SidebarMenuButton className="text-sidebar-foreground text-base font-semibold">
+            <RiAdminFill className="text-2xl text-brand shrink-0" />
+            <span>{role === 'admin' ? 'Admin Panel' : 'User Panel'}</span>
+          </SidebarMenuButton>
+        </SidebarMenu>
+        <Separator className="mt-3" />
+      </SidebarHeader>
 
       <SidebarContent className="px-3 space-y-2">
 
@@ -100,49 +99,56 @@ export function AppSidebar() {
             {/* USERS */}
             <AccordionItem value="users" className="border-none">
               <AccordionTrigger
-                className={`px-3 py-2 text-xs  uppercase tracking-wider hover:no-underline ${
-                  isGroupActive(['/admin/add-user', '/admin/manage-users', '/admin/users'])
+                className={`px-3 py-2  tracking-wider hover:no-underline flex  items-center  w-full ${
+                  isGroupActive(['/admin/add-user', '/admin/manage-users'])
                     ? 'text-brand'
                     : 'text-muted-foreground'
                 }`}
-              > <FaUser className="inline mb-1 mr-2 text-brand rotate-0! " size={20}/>
-                User 
+              >
+                <FaUser className="inline mb-1 mr-2 text-brand rotate-0!" size={22} />
+                <span className="flex-1 text-left text-base">
+                  User
+                </span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-user" label="Add User" icon={FiPlusCircle} pathname={pathname} />
                 <NavItem href="/admin/manage-users" label="Manage Users" icon={FiUsers} pathname={pathname} />
-                <NavItem href="/admin/users" label="Expense Report" icon={FiBarChart2} pathname={pathname} />
               </AccordionContent>
             </AccordionItem>
 
             {/* CATEGORIES */}
             <AccordionItem value="categories" className="border-none">
               <AccordionTrigger
-                className={`px-3 py-2 text-xs uppercase tracking-wider hover:no-underline ${
-                  isGroupActive(['/admin/add-categories', '/admin/manage-categories', '/admin/categories'])
+                className={`px-3 py-2  tracking-wider hover:no-underline flex items-start w-full ${
+                  isGroupActive(['/admin/add-categories', '/admin/manage-categories'])
                     ? 'text-brand'
                     : 'text-muted-foreground'
                 }`}
               >
-              <BiSolidCategory className="inline mb-1 mr-2 text-brand rotate-0!" size={20} /> Categories 
+                <BiSolidCategory className="inline mb-1 mr-2 text-brand rotate-0!" size={22} />
+               <span className="flex-1 text-left text-base">
+                  Categories
+                </span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-categories" label="Add Category" icon={FiPlusCircle} pathname={pathname} />
                 <NavItem href="/admin/manage-categories" label="Manage Categories" icon={FiFolder} pathname={pathname} />
-                <NavItem href="/admin/categories" label="Category Report" icon={FiBarChart2} pathname={pathname} />
               </AccordionContent>
             </AccordionItem>
 
             {/* EXPENSES */}
             <AccordionItem value="expenses" className="border-none">
               <AccordionTrigger
-                className={`px-3 py-2 text-xs uppercase tracking-wider hover:no-underline ${
+                className={`px-3 py-2  tracking-wider hover:no-underline flex items-start w-full ${
                   isGroupActive(['/admin/add-expense', '/admin/manage-expenses'])
                     ? 'text-brand'
                     : 'text-muted-foreground'
                 }`}
               >
-               <FaMoneyBillTrendUp className="inline mb-1 mr-2 text-brand rotate-0!" size={20} /> Expenses
+                <FaMoneyBillTrendUp className="inline mb-1 mr-2 text-brand rotate-0!" size={22} />
+                <span className="flex-1 text-left text-base">
+                  Expenses
+                </span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
@@ -153,18 +159,37 @@ export function AppSidebar() {
             {/* ZONES */}
             <AccordionItem value="zones" className="border-none">
               <AccordionTrigger
-                className={`px-3 py-2 text-xs uppercase tracking-wider hover:no-underline ${
-                  isGroupActive(['/admin/add-zone', '/admin/manage-zones', '/admin/zone'])
+                className={`px-3 py-2  tracking-wider hover:no-underline ${
+                  isGroupActive(['/admin/add-zone', '/admin/manage-zones'])
                     ? 'text-brand'
                     : 'text-muted-foreground'
                 }`}
               >
-              <RiTimeZoneLine className="inline mb-1 mr-2 text-brand rotate-0!" size={20} /> Zones
+                <RiTimeZoneLine className="inline mb-1 mr-2 text-brand rotate-0!" size={22} />
+                <span className="flex-1 text-left text-base">Zones</span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-zone" label="Add Zone" icon={FiPlusCircle} pathname={pathname} />
                 <NavItem href="/admin/manage-zones" label="Manage Zones" icon={FiMapPin} pathname={pathname} />
-                <NavItem href="/admin/zone" label="Zone Report" icon={FiBarChart2} pathname={pathname} />
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* REPORTS */}
+            <AccordionItem value="reports" className="border-none">
+              <AccordionTrigger
+                className={`px-3 py-2  tracking-wider hover:no-underline ${
+                  isGroupActive(['/admin/users', '/admin/categories', '/admin/zone'])
+                    ? 'text-brand'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                <FiBarChart2 className="inline mb-1 mr-2 text-brand rotate-0!" size={22} />
+                <span className="flex-1 text-left text-base">Reports</span>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-1 pt-1">
+                <NavItem href="/admin/users" label="User Report" icon={FiUsers} pathname={pathname} />
+                <NavItem href="/admin/categories" label="Expense Report" icon={FiDollarSign} pathname={pathname} />
+                <NavItem href="/admin/zone" label="Zone Report" icon={FiMapPin} pathname={pathname} />
               </AccordionContent>
             </AccordionItem>
 
@@ -179,19 +204,18 @@ export function AppSidebar() {
         )}
 
         {/* ACCOUNT */}
-        <Accordion type='single' collapsible className="border-none">
+        <Accordion type="single" collapsible className="border-none">
           <AccordionItem value="account" className="border-none">
             <AccordionTrigger
-              className={`px-4 py-2 text-xs uppercase tracking-wider hover:no-underline ${
+              className={`px-4 py-2  tracking-wider hover:no-underline ${
                 pathname.startsWith('/change-password')
                   ? 'text-brand'
                   : 'text-muted-foreground'
               }`}
             >
-              <MdAccountCircle className="mr-2 text-brand shrink-0 rotate-0!" size={18} />
-              Account
+              <MdAccountCircle className="mr-2 text-brand shrink-0 rotate-0!" size={22} />
+              <span className="flex-1 text-left text-base">Account</span>
             </AccordionTrigger>
-            
             <AccordionContent className="space-y-1 pt-1">
               <NavItem
                 href="/change-password"
@@ -202,12 +226,8 @@ export function AppSidebar() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-            
 
       </SidebarContent>
-
-      
-
     </Sidebar>
   )
 }

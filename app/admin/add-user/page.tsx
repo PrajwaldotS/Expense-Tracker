@@ -213,10 +213,10 @@ export default function CreateUserPage() {
               value={gender}
               onChange={(e) => setGender(e.target.value as Gender)}
             >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option className='bg-card text-foreground' value="">Select gender</option>
+              <option className='bg-card text-foreground' value="male">Male</option>
+              <option className='bg-card text-foreground' value="female">Female</option>
+              <option className='bg-card text-foreground' value="other">Other</option>
             </select>
 
             <input
@@ -230,10 +230,10 @@ export default function CreateUserPage() {
               value={idProofType}
               onChange={(e) => setIdProofType(e.target.value as IdProofType)}
             >
-              <option value="">Select ID Proof</option>
-              <option value="aadhaar">Aadhaar Card</option>
-              <option value="pan">PAN Card</option>
-              <option value="driving_license">Driving Licence</option>
+              <option className='bg-card text-foreground'  value="">Select ID Proof</option>
+              <option className='bg-card text-foreground' value="aadhaar">Aadhaar Card</option>
+              <option className='bg-card text-foreground' value="pan">PAN Card</option>
+              <option className='bg-card text-foreground' value="driving_license">Driving Licence</option>
             </select>
 
             {idProofType && (
