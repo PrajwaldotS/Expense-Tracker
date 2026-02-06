@@ -8,7 +8,15 @@ import {
 } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { FiSearch, FiMap } from 'react-icons/fi'
+import { FiSearch} from 'react-icons/fi'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts'
 
 export default function ZoneSummaryPage() {
   const [zones, setZones] = useState<any[]>([])
@@ -16,6 +24,20 @@ export default function ZoneSummaryPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
   const [totalPages, setTotalPages] = useState(1)
+  
+  const CHART_COLORS = [
+  '#00bbf9',
+  '#f15bb5',
+  '#00f5d4',
+  '#9b5de5',
+  '#fee440',
+  '#ff6d00',
+  '#8338ec',
+]
+  const pieData = zones.map((z) => ({
+  name: z.name,
+  value: Number(z.total_expenses) || 0,
+}))
 
   const fetchZones = async () => {
     const from = (page - 1) * pageSize
@@ -49,6 +71,57 @@ export default function ZoneSummaryPage() {
             Overview of zone creation and associated expense activity
           </p>
         </div>
+        {/* charts  */}
+        {/* PIE CHART */}
+<div className="bg-card border shadow-sm rounded-xl p-6">
+  <h2 className="text-lg font-semibold mb-1 text-foreground">
+    Expenses Distribution by Zone
+  </h2>
+  <p className="text-sm text-muted-foreground mb-4">
+    Visual breakdown of total expenses across zones
+  </p>
+
+  {pieData.length === 0 ? (
+    <p className="text-sm text-muted-foreground">No data available</p>
+  ) : (
+    <div className="w-full h-80">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={pieData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={110}
+            innerRadius={55}
+            paddingAngle={3}
+          >
+            {pieData.map((_, index) => (
+              <Cell
+                key={index}
+                fill={CHART_COLORS[index % CHART_COLORS.length]}
+              />
+            ))}
+          </Pie>
+
+          <Tooltip
+            formatter={(value: number) => `₹ ${value.toLocaleString('en-IN')}`}
+          />
+
+          <Legend
+            verticalAlign="bottom"
+            height={36}
+            formatter={(value) => (
+              <span className="text-sm text-foreground">{value}</span>
+            )}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  )}
+</div>
+
 
         {/* SEARCH */}
         <div className="relative max-w-sm">
