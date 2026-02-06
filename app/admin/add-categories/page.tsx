@@ -13,6 +13,16 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const loadPage = async () => {
+      setLoading(true)
+      await Promise.all([
+        checkAdmin(),
+      ])
+    }
+    loadPage()
+  }, [router])
+
+
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser()
 
@@ -33,9 +43,6 @@ export default function CategoriesPage() {
         setLoading(false)
       }
     }
-
-    checkAdmin()
-  }, [router])
 
   const addCategory = async () => {
     setMsg('')
