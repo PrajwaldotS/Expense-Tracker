@@ -5,14 +5,32 @@ import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,DropdownMenuLabel,DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useRouter } from 'next/navigation'
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,} from "@/components/ui/dialog"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MoreHorizontalIcon } from 'lucide-react'
-import { Table, TableBody, TableCell, TableHead,TableHeader, TableRow, } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { FiSearch } from 'react-icons/fi'
 
 export default function AdminUsersPage() {
@@ -41,7 +59,12 @@ export default function AdminUsersPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return router.push('/login')
 
-    const { data } = await supabase.from('users').select('role').eq('id', user.id).single()
+    const { data } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
     if (data?.role !== 'admin') router.push('/Dashboard')
     else setLoading(false)
   }
@@ -156,8 +179,11 @@ export default function AdminUsersPage() {
           <Table>
             <TableHeader className="bg-muted/40">
               <TableRow>
+                <TableHead>Photo</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>DOB</TableHead>
+                <TableHead>ID Proof</TableHead>
                 <TableHead>Zones</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead>Last Login</TableHead>
@@ -169,29 +195,53 @@ export default function AdminUsersPage() {
             <TableBody>
               {paginatedUsers.map((u) => (
                 <TableRow key={u.id} className="hover:bg-muted/40 transition">
-                  <TableCell className="font-medium text-blue-400   rounded-md">{u.user_metadata?.name || u.email.split('@')[0]}</TableCell>
-                  <TableCell className="text-muted-foreground">{u.email}</TableCell>
                   <TableCell>
-                    <div className="group px-2 py-1 text-center relative rounded-md cursor-pointer no-underline  bg-brand/10 text-brand  ">
+                    {u.profile_photo_url ? (
+                      <img
+                        src={u.profile_photo_url}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs">
+                        NA
+                      </div>
+                    )}
+                  </TableCell>
+
+                  <TableCell className="font-medium text-blue-400 rounded-md">
+                    {u.user_metadata?.name || u.email.split('@')[0]}
+                  </TableCell>
+
+                  <TableCell className="text-muted-foreground">{u.email}</TableCell>
+                  <TableCell>{u.dob ? new Date(u.dob).toLocaleDateString() : '—'}</TableCell>
+                  <TableCell>{u.id_proof_type || '—'}</TableCell>
+
+                  <TableCell>
+                    <div className="group px-2 py-1 text-center relative rounded-md cursor-pointer bg-brand/10 text-brand">
                       {u.zone_names ? u.zone_names.split(',').length : 0} Zones
                       <div className="absolute hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-10">
                         {u.zone_names || 'No Zones'}
                       </div>
                     </div>
                   </TableCell>
+
                   <TableCell>{new Date(u.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString() : 'Never'}</TableCell>
+
                   <TableCell>
                     <span className={`px-2 py-1 rounded-md text-xs ${
-                      u.banned_until ? 'bg-[#f15bb5]/10 text-destructive' : 'bg-accent/10 text-accent '
+                      u.banned_until ? 'bg-[#f15bb5]/10 text-destructive' : 'bg-accent/10 text-accent'
                     }`}>
                       {u.banned_until ? 'Disabled' : 'Active'}
                     </span>
                   </TableCell>
+
                   <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon"><MoreHorizontalIcon className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontalIcon className="h-4 w-4" />
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
@@ -208,6 +258,7 @@ export default function AdminUsersPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
+
                 </TableRow>
               ))}
             </TableBody>
@@ -237,13 +288,24 @@ export default function AdminUsersPage() {
       {/* Edit User Dialog */}
       <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Edit User</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div><Label>Name</Label>
-              <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+            <div>
+              <Label>Name</Label>
+              <Input
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              />
             </div>
-            <div><Label>Role</Label>
-              <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className="w-full border rounded px-2 py-1">
+            <div>
+              <Label>Role</Label>
+              <select
+                value={editForm.role}
+                onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                className="w-full border rounded px-2 py-1"
+              >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
@@ -269,7 +331,11 @@ export default function AdminUsersPage() {
               return (
                 <div key={z.id} className="flex justify-between items-center">
                   <span>{z.name}</span>
-                  <Button size="sm" variant={has ? 'destructive' : 'default'} onClick={() => toggleZone(z.id)}>
+                  <Button
+                    size="sm"
+                    variant={has ? 'destructive' : 'default'}
+                    onClick={() => toggleZone(z.id)}
+                  >
                     {has ? 'Remove' : 'Add'}
                   </Button>
                 </div>
@@ -282,7 +348,3 @@ export default function AdminUsersPage() {
     </ProtectedRoute>
   )
 }
-
-
-
- 
