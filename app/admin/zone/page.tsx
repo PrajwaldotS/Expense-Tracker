@@ -17,7 +17,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { Divide } from 'lucide-react'
 
 export default function ZoneSummaryPage() {
   const [zones, setZones] = useState<any[]>([])

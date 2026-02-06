@@ -130,7 +130,7 @@ export default function CategoriesPage() {
   {areaChartData.length === 0 ? (
     <p className="text-sm text-muted-foreground">No data available</p>
   ) : (
-    <div className="w-full h-[320px]">
+    <div className="w-full h-80">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={areaChartData}>
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
@@ -248,9 +248,9 @@ export default function CategoriesPage() {
             onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }}
             className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#00f5d4] outline-none"
           >
-            <option value={5}>5 / page</option>
-            <option value={10}>10 / page</option>
-            <option value={20}>20 / page</option>
+            <option className='bg-card text-foreground' value={5}>5 / page</option>
+            <option className='bg-card text-foreground' value={10}>10 / page</option>
+            <option className='bg-card text-foreground' value={20}>20 / page</option>
           </select>
         </div>
 

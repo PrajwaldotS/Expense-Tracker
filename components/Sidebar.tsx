@@ -36,6 +36,7 @@ import {
   FiPlusCircle,
   FiBarChart2
 } from 'react-icons/fi'
+import { FaRupeeSign } from "react-icons/fa";
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -152,7 +153,7 @@ export function AppSidebar() {
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
-                <NavItem href="/admin/manage-expenses" label="Manage Expenses" icon={FiDollarSign} pathname={pathname} />
+                <NavItem href="/admin/manage-expenses" label="Manage Expenses" icon={FaRupeeSign} pathname={pathname} />
               </AccordionContent>
             </AccordionItem>
 
@@ -188,7 +189,7 @@ export function AppSidebar() {
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
                 <NavItem href="/admin/users" label="User Report" icon={FiUsers} pathname={pathname} />
-                <NavItem href="/admin/categories" label="Expense Report" icon={FiDollarSign} pathname={pathname} />
+                <NavItem href="/admin/categories" label="Category Report" icon={FaRupeeSign} pathname={pathname} />
                 <NavItem href="/admin/zone" label="Zone Report" icon={FiMapPin} pathname={pathname} />
               </AccordionContent>
             </AccordionItem>

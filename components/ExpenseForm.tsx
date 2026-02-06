@@ -6,6 +6,7 @@ import ZoneSelect from './ZoneSelect'
 import { FiDollarSign, FiFileText } from 'react-icons/fi'
 import { Form } from 'lucide-react'
 import FormResetButton from './Resetbutton'
+import { FaRupeeSign } from "react-icons/fa";
 
 export default function ExpenseForm() {
   const [zoneId, setZoneId] = useState('')
@@ -82,7 +83,7 @@ export default function ExpenseForm() {
           <div className="space-y-1">
             <label className="text-sm font-medium text-muted-foreground">Amount</label>
             <div className="relative">
-              <FiDollarSign className="absolute left-3 top-3 text-destructive" />
+              <FaRupeeSign className="absolute left-3 top-3 text-destructive" />
               <input
                 placeholder="Enter amount"
                 value={amount}
