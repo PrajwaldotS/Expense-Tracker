@@ -262,7 +262,6 @@ export default function AdminUsersPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>DOB</TableHead>
-                <TableHead>ID Proof</TableHead>
                 <TableHead>Zones</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead>Last Login</TableHead>
@@ -294,20 +293,7 @@ export default function AdminUsersPage() {
 
                   <TableCell className="text-muted-foreground">{u.email}</TableCell>
                   <TableCell>{u.dob ? new Date(u.dob).toLocaleDateString() : '—'}</TableCell>
-                  <TableCell>
-                    {u.id_proof_type && u.id_proof_url ? (
-                      <a
-                        href={u.id_proof_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline text-sm"
-                      >
-                        {u.id_proof_type}
-                      </a>
-                    ) : (
-                      '—'
-                    )}
-                  </TableCell>
+                 
 
 
                   <TableCell>

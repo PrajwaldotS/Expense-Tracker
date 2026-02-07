@@ -3,8 +3,7 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import CategorySelect from './CategorySelect'
 import ZoneSelect from './ZoneSelect'
-import { FiDollarSign, FiFileText } from 'react-icons/fi'
-import { Form } from 'lucide-react'
+import { FiFileText , FiUpload } from 'react-icons/fi'
 import FormResetButton from './Resetbutton'
 import { FaRupeeSign } from "react-icons/fa";
 
@@ -15,6 +14,7 @@ export default function ExpenseForm() {
   const [desc, setDesc] = useState('')
   const [msg, setMsg] = useState('')
   const [loading, setLoading] = useState(false)
+  const [receipt, setReceipt] = useState<File | null>(null)
 
   const addExpense = async () => {
     setMsg('')
@@ -49,6 +49,7 @@ export default function ExpenseForm() {
       setDesc('')
       setCategoryId('')
       setZoneId('')
+      setReceipt(null)
     }
 
     setLoading(false)
@@ -108,6 +109,28 @@ export default function ExpenseForm() {
             </div>
           </div>
         </div>
+             {/* Receipt Upload */}
+          <div className="space-y-1 md:col-span-2">
+            <label className="text-sm font-medium text-muted-foreground">
+              Upload Receipt (optional)
+            </label>
+            <div className="relative">
+              <FiUpload className="absolute left-3 top-3 text-muted-foreground" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setReceipt(e.target.files?.[0] || null)}
+                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#00bbf9] outline-none"
+              />
+            </div>
+
+            {receipt && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Selected: {receipt.name}
+              </p>
+            )}
+          </div>
+        
 
         {/* ACTION BUTTON */}
         <button

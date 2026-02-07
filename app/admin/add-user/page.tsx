@@ -216,34 +216,16 @@ export default function CreateUserPage() {
               <option className='bg-card text-foreground' value="">Select gender</option>
               <option className='bg-card text-foreground' value="male">Male</option>
               <option className='bg-card text-foreground' value="female">Female</option>
-              <option className='bg-card text-foreground' value="other">Other</option>
+              <option className='bg-card text-foreground' value="other">Prefer Not to say</option>
             </select>
-
+            <label htmlFor="profile-photo" className=" text-muted-foreground">Profile Photo (Optional)</label>
             <input
+              id="profile-photo"
               type="file"
               accept="image/*"
               onChange={(e) => setProfilePhoto(e.target.files?.[0] ?? null)}
-            />
-
-            <select
-              className="w-full px-3 py-2 border rounded-lg"
-              value={idProofType}
-              onChange={(e) => setIdProofType(e.target.value as IdProofType)}
-            >
-              <option className='bg-card text-foreground'  value="">Select ID Proof</option>
-              <option className='bg-card text-foreground' value="aadhaar">Aadhaar Card</option>
-              <option className='bg-card text-foreground' value="pan">PAN Card</option>
-              <option className='bg-card text-foreground' value="driving_license">Driving Licence</option>
-            </select>
-
-            {idProofType && (
-              <input
-                type="file"
-                accept="image/*,application/pdf"
-                onChange={(e) => setIdProofFile(e.target.files?.[0] ?? null)}
-              />
-            )}
-          </div>
+           />
+            </div>
 
           <button
             onClick={createUser}
