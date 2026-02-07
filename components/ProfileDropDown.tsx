@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Logout from '@/components/Logout'
 import { Separator } from './ui/separator'
+import ChangePasswordDialog from './changePassword'
 
 export default function ProfileDropdown() {
   const [name, setName] = useState('')
@@ -93,9 +94,13 @@ export default function ProfileDropdown() {
         </DropdownMenuLabel>
         
          
+          <DropdownMenuItem asChild >
+          <ChangePasswordDialog/> 
+        </DropdownMenuItem>
         <DropdownMenuItem asChild >
           <Logout />
         </DropdownMenuItem>
+         
       </DropdownMenuContent>
     </DropdownMenu>
   )

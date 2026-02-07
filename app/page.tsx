@@ -31,9 +31,9 @@ export default function LoginPage() {
       .single()
 
     if (data?.role === 'admin') {
-      window.location.href = '/admin'
+      window.location.href = '/admin/adminDashboard'
     } else {
-      window.location.href = '/Dashboard'
+      window.location.href = '/userDashboard'
     }
   }
 

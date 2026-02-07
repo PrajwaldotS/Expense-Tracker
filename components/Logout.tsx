@@ -9,8 +9,8 @@ export default function Logout() {
   }
 
   return (
-    <div className='flex justify-center items-center mb-2'>
-      <button onClick={logout} className=' text-black bg-white border  px-4 py-1 shadow-lg rounded-xl'>Logout</button>
+    <div className='flex   justify-center items-center my-2'>
+      <button onClick={logout} className=' bg-card cursor-pointer text-foreground border shadow  px-4 py-1  rounded-lg'>Logout</button>
     </div>
   )
 }
