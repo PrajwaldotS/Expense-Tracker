@@ -63,7 +63,7 @@ export default function ExpenseTable() {
 
     let query = supabase
       .from('expenses')
-      .select('id, amount, description, expense_date, category_id, categories(name)', { count: 'exact' })
+      .select('id, amount, description, expense_date, category_id, categories(name),  receipt_url', { count: 'exact' })
       .order('expense_date', { ascending: false })
       .range(from, to)
 
@@ -160,6 +160,7 @@ export default function ExpenseTable() {
               <TableRow>
                 <TableHead>Amount</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead >Receipt</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -175,6 +176,20 @@ export default function ExpenseTable() {
                     <span className="px-2 py-1 rounded-md bg-purple-200 text-purple-600 text-xs">
                       {e.categories?.name}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    {e.receipt_url ? (
+                      <a
+                        href={e.receipt_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline text-sm font-medium"
+                      >
+                        View Receipt
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">No receipt</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{e.description}</TableCell>
                   <TableCell>{new Date(e.expense_date).toLocaleDateString()}</TableCell>

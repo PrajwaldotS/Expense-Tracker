@@ -84,10 +84,17 @@ export function AppSidebar() {
 
       <SidebarHeader className="px-3 pt-6 lg:mt-14">
         <SidebarMenu>
-          <SidebarMenuButton className="text-sidebar-foreground text-base font-semibold">
-            <RiAdminFill className="text-2xl text-brand shrink-0" />
-            <span>{role === 'admin' ? 'Admin Panel' : 'User Panel'}</span>
-          </SidebarMenuButton>
+          <Link
+      href={role === 'admin' ? '/admin/adminDashboard' : '/userDashboard'}
+      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-all
+        ${pathname === (role === 'admin' ? '/admin/adminDashboard' : '/userDashboard')
+          ? 'bg-brand/10 text-brand shadow-sm'
+          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+        }`}
+    >
+      <RiAdminFill className="text-xl text-brand shrink-0" />
+      <span>{role === 'admin' ? 'Admin Panel' : 'User Panel'}</span>
+    </Link>
         </SidebarMenu>
         <Separator className="mt-3" />
       </SidebarHeader>
@@ -199,7 +206,7 @@ export function AppSidebar() {
 
         {role === 'user' && (
           <SidebarGroup>
-            <NavItem href="/Dashboard" label="My Expenses" icon={FiDollarSign} pathname={pathname} />
+            <NavItem href="/userExpenses" label="My Expenses" icon={FiDollarSign} pathname={pathname} />
             <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
           </SidebarGroup>
         )}

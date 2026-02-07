@@ -16,44 +16,74 @@ export default function ExpenseForm() {
   const [loading, setLoading] = useState(false)
   const [receipt, setReceipt] = useState<File | null>(null)
 
-  const addExpense = async () => {
-    setMsg('')
+ const addExpense = async () => {
+  setMsg('')
 
-    if (!categoryId) return setMsg('Please select a category')
-    if (!zoneId) return setMsg('Please select a zone')
-    if (!amount || Number(amount) <= 0) return setMsg('Enter a valid amount')
+  if (!categoryId) return setMsg('Please select a category')
+  if (!zoneId) return setMsg('Please select a zone')
+  if (!amount || Number(amount) <= 0) return setMsg('Enter a valid amount')
 
-    setLoading(true)
+  setLoading(true)
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      setMsg('Not logged in')
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    setMsg('Not logged in')
+    setLoading(false)
+    return
+  }
+
+  let receiptUrl: string | null = null
+
+  // 🔹 STEP 1: UPLOAD RECEIPT (IF EXISTS)
+  if (receipt) {
+    const ext = receipt.name.split('.').pop()
+    const filePath = `receipts/${user.id}/${Date.now()}.${ext}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('expense-receipts')
+      .upload(filePath, receipt, {
+        cacheControl: '3600',
+        upsert: false,
+      })
+
+    if (uploadError) {
+      setMsg(uploadError.message)
       setLoading(false)
       return
     }
 
-    const { error } = await supabase.from('expenses').insert({
-      user_id: user.id,
-      category_id: categoryId,
-      zone_id: zoneId,
-      amount: Number(amount),
-      description: desc,
-      expense_date: new Date().toISOString().split('T')[0],
-    })
+    // 🔹 STEP 2: GET PUBLIC URL
+    const { data } = supabase.storage
+      .from('expense-receipts')
+      .getPublicUrl(filePath)
 
-    if (error) {
-      setMsg(error.message)
-    } else {
-      setMsg('Expense added successfully!')
-      setAmount('')
-      setDesc('')
-      setCategoryId('')
-      setZoneId('')
-      setReceipt(null)
-    }
-
-    setLoading(false)
+    receiptUrl = data.publicUrl
   }
+
+  // 🔹 STEP 3: INSERT EXPENSE
+  const { error } = await supabase.from('expenses').insert({
+    user_id: user.id,
+    category_id: categoryId,
+    zone_id: zoneId,
+    amount: Number(amount),
+    description: desc,
+    expense_date: new Date().toISOString().split('T')[0],
+    receipt_url: receiptUrl,
+  })
+
+  if (error) {
+    setMsg(error.message)
+  } else {
+    setMsg('Expense added successfully!')
+    setAmount('')
+    setDesc('')
+    setCategoryId('')
+    setZoneId('')
+    setReceipt(null)
+  }
+
+  setLoading(false)
+}
 
   return (
     <div className="min-h-[70vh]  px-4 mt-20">
@@ -109,26 +139,17 @@ export default function ExpenseForm() {
             </div>
           </div>
         </div>
-             {/* Receipt Upload */}
+          {/* Receipt Upload */}
           <div className="space-y-1 md:col-span-2">
             <label className="text-sm font-medium text-muted-foreground">
-              Upload Receipt (optional)
+              Receipt (optional)
             </label>
-            <div className="relative">
-              <FiUpload className="absolute left-3 top-3 text-muted-foreground" />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setReceipt(e.target.files?.[0] || null)}
-                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#00bbf9] outline-none"
-              />
-            </div>
-
-            {receipt && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Selected: {receipt.name}
-              </p>
-            )}
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={(e) => setReceipt(e.target.files?.[0] || null)}
+              className="w-full border rounded-lg px-3 py-2"
+            />
           </div>
         
 
