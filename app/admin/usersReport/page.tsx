@@ -23,6 +23,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from 'recharts'
+import AdminDashboardShimmer from '@/components/skeletons/userReportSkeleton'
 
 
 export default function AdminDashboard() {
@@ -93,7 +94,15 @@ export default function AdminDashboard() {
     if (page > totalPages) setPage(1)
   }, [totalPages, page])
 
-  if (loading) return <p className="p-6">Loading admin insights...</p>
+  if (loading) {
+  return (
+    <ProtectedRoute>
+      <div className="max-w-7xl mx-auto mt-20 px-4">
+        <AdminDashboardShimmer />
+      </div>
+    </ProtectedRoute>
+  )
+}
 
   return (
     <ProtectedRoute>

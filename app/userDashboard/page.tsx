@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import { FaRupeeSign } from 'react-icons/fa'
 import { FiMapPin, FiClock } from 'react-icons/fi'
+import UserDashboardShimmer from '@/components/skeletons/userDashboardSkeleton'
 
 /* ---------------- TYPES ---------------- */
 
@@ -122,10 +123,15 @@ setZones(zoneNames)
     setLoading(false)
   }
 
-  if (loading) {
-    return <p className="p-6">Loading dashboard...</p>
-  }
-
+ if (loading) {
+  return (
+    <ProtectedRoute>
+      <div className="max-w-7xl mx-auto mt-20 px-4">
+        <UserDashboardShimmer />
+      </div>
+    </ProtectedRoute>
+  )
+}
   return (
     <ProtectedRoute>
       <div className="max-w-7xl mx-auto mt-20 px-4 space-y-8">

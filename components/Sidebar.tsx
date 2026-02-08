@@ -26,7 +26,7 @@ import { RiAdminFill } from "react-icons/ri";
 import { BiSolidCategory } from "react-icons/bi";
 import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { RiTimeZoneLine } from "react-icons/ri";
-import { MdAccountCircle } from "react-icons/md";
+import { MdOutlineSpaceDashboard } from "react-icons/md";
 import {
   FiUsers,
   FiFolder,
@@ -37,6 +37,8 @@ import {
   FiBarChart2
 } from 'react-icons/fi'
 import { FaRupeeSign } from "react-icons/fa";
+
+
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -96,7 +98,7 @@ export function AppSidebar() {
       <span className="transition-all group-data-[state=collapsed]:hidden group-data-[state=expanded]:inline ">{role === 'admin' ? 'Admin Panel' : 'User Panel'}</span>
     </Link>
         </SidebarMenu>
-        <Separator className="mt-3" />
+        <Separator className="" />
       </SidebarHeader>
 
       <SidebarContent className="px-3 space-y-2">
@@ -105,6 +107,8 @@ export function AppSidebar() {
           <Accordion type="single" collapsible className="w-full space-y-2">
 
             {/* USERS */}
+          
+              
             <AccordionItem value="users" className="border-none">
               <AccordionTrigger
                 className={`px-3 py-2  tracking-wider hover:no-underline  ${
@@ -206,8 +210,8 @@ export function AppSidebar() {
 
         {role === 'user' && (
           <SidebarGroup>
-            <NavItem href="/userDashboard" label="Dashboard" icon={FiDollarSign} pathname={pathname} />
-            <NavItem href="/userExpenses" label="My Expenses" icon={FiDollarSign} pathname={pathname} />
+            <NavItem href="/userDashboard" label="Dashboard" icon={MdOutlineSpaceDashboard} pathname={pathname} />
+            <NavItem href="/userExpenses" label="My Expenses" icon={FaRupeeSign} pathname={pathname} />
 
             <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
           </SidebarGroup>

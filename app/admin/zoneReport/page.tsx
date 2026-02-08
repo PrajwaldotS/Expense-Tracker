@@ -17,6 +17,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
+import ZoneSummaryShimmer from '@/components/skeletons/zoneReportSkeleton'
 
 export default function ZoneSummaryPage() {
   const [zones, setZones] = useState<any[]>([])
@@ -24,6 +25,7 @@ export default function ZoneSummaryPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
   const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(true)
   
   const CHART_COLORS = [
   '#00bbf9',
@@ -54,12 +56,13 @@ export default function ZoneSummaryPage() {
     const { data, count } = await query
     setZones(data || [])
     setTotalPages(Math.ceil((count || 0) / pageSize))
+    setLoading(false)
   }
 
   useEffect(() => {
     fetchZones()
   }, [page, pageSize, search])
-
+  if (loading) return <ZoneSummaryShimmer />
   return (
     <ProtectedRoute>
       <div className="max-w-7xl mx-auto mt-20 px-4 space-y-6">

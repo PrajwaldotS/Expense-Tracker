@@ -21,6 +21,7 @@ import {
 import { MoreHorizontalIcon } from 'lucide-react'
 import { FiSearch, FiCalendar } from 'react-icons/fi'
 import { useRouter } from 'next/navigation'
+import ManageExpensesSkeleton from '@/components/skeletons/manageExpensesSkeleton'
 
 export default function ExpenseTable() {
   const router = useRouter()
@@ -33,6 +34,7 @@ export default function ExpenseTable() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(true)
 
   const [editingExpense, setEditingExpense] = useState<any | null>(null)
   const [editForm, setEditForm] = useState({
@@ -75,6 +77,7 @@ export default function ExpenseTable() {
     const { data, count } = await query
     setExpenses(data || [])
     setTotalPages(Math.ceil((count || 0) / pageSize))
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -109,7 +112,9 @@ export default function ExpenseTable() {
     setEditingExpense(null)
     fetchExpenses()
   }
-
+  if (loading) {
+    return <ManageExpensesSkeleton />
+  }
   return (
     <ProtectedRoute>
       <div className="max-w-7xl mx-auto mt-20 px-4 space-y-6">
@@ -152,7 +157,6 @@ export default function ExpenseTable() {
 
           <Input type="date" value={toDate} onChange={(e) => { setToDate(e.target.value); setPage(1) }} />
         </div>
-
         {/* TABLE CARD */}
         <div className="bg-card border shadow-sm rounded-xl overflow-hidden">
           <Table>

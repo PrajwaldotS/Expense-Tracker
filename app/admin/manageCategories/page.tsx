@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import CategoryTableShimmer from '@/components/skeletons/manageCategoriesSkeleton'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from '@/components/ui/table'
@@ -19,9 +20,11 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FiSearch } from 'react-icons/fi'
 
 export default function ManageCategoriesPage() {
   const [categories, setCategories] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [users, setUsers] = useState<any[]>([])
   const [editingCategory, setEditingCategory] = useState<any | null>(null)
 
@@ -31,6 +34,11 @@ export default function ManageCategoriesPage() {
     created_at: ''
   })
 
+  // 🔹 search + pagination state
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(5)
+
   const fetchCategories = async () => {
     const { data } = await supabase
       .from('admin_category_summary')
@@ -38,6 +46,7 @@ export default function ManageCategoriesPage() {
       .order('created_at', { ascending: false })
 
     setCategories(data || [])
+    setLoading(false)
   }
 
   const fetchUsers = async () => {
@@ -81,6 +90,25 @@ export default function ManageCategoriesPage() {
     fetchCategories()
   }
 
+  // 🔹 filter + paginate
+  const filteredCategories = useMemo(() => {
+    return categories.filter((c) =>
+      c.name.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [categories, search])
+
+  const totalPages = Math.max(1, Math.ceil(filteredCategories.length / pageSize))
+  const paginatedCategories = filteredCategories.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  )
+
+  useEffect(() => {
+    if (page > totalPages) setPage(1)
+  }, [totalPages, page])
+ if (loading) {
+    return <CategoryTableShimmer/>
+  }
   return (
     <ProtectedRoute>
       <div className="max-w-7xl mx-auto mt-20 px-4 space-y-6">
@@ -91,6 +119,17 @@ export default function ManageCategoriesPage() {
           <p className="text-sm text-muted-foreground">
             Edit, track, and maintain expense categories
           </p>
+        </div>
+
+        {/* SEARCH */}
+        <div className="relative max-w-sm">
+          <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
+          <Input
+            placeholder="Search category..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            className="pl-10 focus-visible:ring-[#9b5de5]"
+          />
         </div>
 
         {/* TABLE CARD */}
@@ -107,7 +146,7 @@ export default function ManageCategoriesPage() {
             </TableHeader>
 
             <TableBody>
-              {categories.map((c) => (
+              {paginatedCategories.map((c) => (
                 <TableRow key={c.id} className="hover:bg-muted/40 transition">
                   <TableCell className="font-medium text-purple-500">
                     {c.name}
@@ -151,6 +190,33 @@ export default function ManageCategoriesPage() {
           </Table>
         </div>
 
+        {/* PAGINATION */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex gap-2 items-center">
+            <Button disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+              Prev
+            </Button>
+
+            <span className="text-sm text-muted-foreground">
+              Page <span className="font-medium text-foreground">{page}</span> of {totalPages}
+            </span>
+
+            <Button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
+              Next
+            </Button>
+          </div>
+
+          <select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }}
+            className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#00f5d4] outline-none"
+          >
+            <option value={5}>5 / page</option>
+            <option value={10}>10 / page</option>
+            <option value={20}>20 / page</option>
+          </select>
+        </div>
+
         {/* EDIT DIALOG */}
         <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
           <DialogContent className="sm:max-w-lg">
@@ -175,9 +241,9 @@ export default function ManageCategoriesPage() {
                   onChange={(e) => setForm({ ...form, created_by: e.target.value })}
                   className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#00bbf9] outline-none"
                 >
-                  <option  value="">Select User</option>
+                  <option value="">Select User</option>
                   {users.map((u) => (
-                    <option className='bg-card text-foreground' key={u.id} value={u.id}>{u.name}</option>
+                    <option key={u.id} value={u.id}>{u.name}</option>
                   ))}
                 </select>
               </div>

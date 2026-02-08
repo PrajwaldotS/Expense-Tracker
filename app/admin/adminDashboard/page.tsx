@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import { FiUsers, FiFolder, FiDollarSign, FiMapPin } from 'react-icons/fi'
+import AdminDashboardSkeleton from '@/components/skeletons/adminDashboardSkeleton'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -71,7 +72,9 @@ export default function AdminDashboard() {
     setTotalSpent(total)
   }
 
-  if (loading) return <p className="p-6">Loading admin insights...</p>
+  if (loading) return <div className="max-w-7xl mx-auto mt-20 px-4">
+      <AdminDashboardSkeleton />
+    </div>
 
   return (
     <div className="p-6 space-y-8 mt-16">
@@ -83,6 +86,7 @@ export default function AdminDashboard() {
           Snapshot of system-wide financial activity
         </p>
       </div>
+      
 
       {/* 💰 HERO CARD — FULL WIDTH */}
       <div className="rounded-2xl bg-card border shadow-sm p-8 flex items-center gap-6">

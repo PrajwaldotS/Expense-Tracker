@@ -22,6 +22,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from 'recharts'
+import CategoryOverviewShimmer from '@/components/skeletons/categoryReportSkeleton'
 
 
 export default function CategoriesPage() {
@@ -92,7 +93,15 @@ export default function CategoriesPage() {
     if (page > totalPages) setPage(1)
   }, [totalPages, page])
 
-  if (loading) return <p className="p-6">Loading category insights...</p>
+ if (loading) {
+  return (
+    <ProtectedRoute>
+      <div className="max-w-7xl mx-auto mt-20 px-4">
+        <CategoryOverviewShimmer />
+      </div>
+    </ProtectedRoute>
+  )
+}
 
   return (
     <ProtectedRoute>

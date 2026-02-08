@@ -32,6 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { FiSearch ,FiEye , FiEyeOff } from 'react-icons/fi'
+import UserTableShimmer from '@/components/skeletons/manageUserSkeleton'
 
 export default function AdminUsersPage() {
   const router = useRouter()
@@ -230,7 +231,15 @@ export default function AdminUsersPage() {
   const totalPages = Math.ceil(filteredUsers.length / pageSize)
   const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize)
 
-  if (loading) return <p className="p-6">Loading users...</p>
+ if (loading) {
+  return (
+    <ProtectedRoute>
+      <div className="max-w-7xl mx-auto mt-20 px-4 space-y-6">
+        <UserTableShimmer />
+      </div>
+    </ProtectedRoute>
+  )
+}
 
   return (
     <ProtectedRoute>

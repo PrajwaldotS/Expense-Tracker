@@ -11,6 +11,7 @@ import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter} from '@/
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FiSearch } from 'react-icons/fi'
+import ZoneReportsShimmer from '@/components/skeletons/manageZonesSkeleton'
 
 export default function ZoneReportsPage() {
   const [expenses, setExpenses] = useState<any[]>([])
@@ -18,6 +19,7 @@ export default function ZoneReportsPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(true)
 
   const [editingExpense, setEditingExpense] = useState<any | null>(null)
   const [editForm, setEditForm] = useState({
@@ -53,6 +55,7 @@ export default function ZoneReportsPage() {
     const { data, count } = await query
     setExpenses(data || [])
     setTotalPages(Math.ceil((count || 0) / pageSize))
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -84,7 +87,13 @@ export default function ZoneReportsPage() {
     setEditingExpense(null)
     fetchExpenses()
   }
-
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <ZoneReportsShimmer />
+      </ProtectedRoute>
+    )
+  }
   return (
     <ProtectedRoute>
       <div className="max-w-7xl mx-auto mt-20 px-4 space-y-6">
