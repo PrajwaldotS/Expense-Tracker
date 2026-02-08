@@ -111,7 +111,7 @@ export default function LoginPage() {
       onClick={() => setShowCurrent(!showCurrent)}
       className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
     >
-      {showCurrent ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+      {showCurrent ? <FiEye size={18} /> : <FiEyeOff size={18} />}
     </button>
   </div>
 </div>
