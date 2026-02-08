@@ -8,6 +8,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/Sidebar";
 import AuthGate from "@/components/authGate";
 import { Space_Mono } from 'next/font/google'
+import AppFooter from "@/components/footer";
 
 const spaceMono = Space_Mono({
   subsets: ['latin'],
@@ -52,9 +53,10 @@ export default function RootLayout({
             <AuthGate>
               <AppSidebar />
               <Navbar />
+              <AppFooter />
             </AuthGate>
 
-            <main className="w-full min-h-screen">       
+            <main className="w-full min-h-screen mb-10">       
         <div className="">{children}</div>
             </main>
           </SidebarProvider>
