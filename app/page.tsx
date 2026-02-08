@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { FiEye, FiEyeOff, FiLock } from 'react-icons/fi'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [msg, setMsg] = useState('')
+  const [showCurrent, setShowCurrent] = useState(false)
+  const [showNew, setShowNew] = useState(false)
 
   useEffect(() => {
     const logoutUser = async () => {
@@ -88,15 +91,31 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                onChange={e => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 bg-background border border-input rounded-lg focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition text-foreground placeholder:text-muted-foreground"
-              />
+             <div className="space-y-1">
+  <label className="text-sm font-medium text-muted-foreground">
+    Current Password
+  </label>
+
+  <div className="relative">
+    <FiLock className="absolute left-3 top-3 text-[#9b5de5]" />
+
+    <input
+      type={showCurrent ? 'text' : 'password'}
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="w-full pl-10 pr-10 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowCurrent(!showCurrent)}
+      className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+    >
+      {showCurrent ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+    </button>
+  </div>
+</div>
+
             </div>
 
             <button

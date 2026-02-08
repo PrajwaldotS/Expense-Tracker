@@ -31,7 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { FiSearch } from 'react-icons/fi'
+import { FiSearch ,FiEye , FiEyeOff } from 'react-icons/fi'
 
 export default function AdminUsersPage() {
   const router = useRouter()
@@ -68,6 +68,9 @@ export default function AdminUsersPage() {
     newPassword: '',
     confirmPassword: '',
   })
+  const [showCurrent, setShowCurrent] = useState(false)
+  const [showNew, setShowNew] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
 
   useEffect(() => {
@@ -546,38 +549,73 @@ export default function AdminUsersPage() {
     </DialogHeader>
 
     <div className="space-y-4">
+
+      {/* CURRENT PASSWORD */}
       <div>
         <Label>Current Password</Label>
-        <Input
-          type="password"
-          value={resetForm.currentPassword}
-          onChange={(e) =>
-            setResetForm({ ...resetForm, currentPassword: e.target.value })
-          }
-        />
+        <div className="relative">
+          <Input
+            type={showCurrent ? 'text' : 'password'}
+            value={resetForm.currentPassword}
+            onChange={(e) =>
+              setResetForm({ ...resetForm, currentPassword: e.target.value })
+            }
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowCurrent(!showCurrent)}
+            className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+          >
+            {showCurrent ? <FiEye size={18} /> : <FiEyeOff size={18} />}
+          </button>
+        </div>
       </div>
 
+      {/* NEW PASSWORD */}
       <div>
         <Label>New Password</Label>
-        <Input
-          type="password"
-          value={resetForm.newPassword}
-          onChange={(e) =>
-            setResetForm({ ...resetForm, newPassword: e.target.value })
-          }
-        />
+        <div className="relative">
+          <Input
+            type={showNew ? 'text' : 'password'}
+            value={resetForm.newPassword}
+            onChange={(e) =>
+              setResetForm({ ...resetForm, newPassword: e.target.value })
+            }
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowNew(!showNew)}
+            className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+          >
+            {showNew ? <FiEye size={18} /> : <FiEyeOff size={18} />}
+          </button>
+        </div>
       </div>
 
+      {/* CONFIRM PASSWORD */}
       <div>
         <Label>Confirm New Password</Label>
-        <Input
-          type="password"
-          value={resetForm.confirmPassword}
-          onChange={(e) =>
-            setResetForm({ ...resetForm, confirmPassword: e.target.value })
-          }
-        />
+        <div className="relative">
+          <Input
+            type={showConfirm ? 'text' : 'password'}
+            value={resetForm.confirmPassword}
+            onChange={(e) =>
+              setResetForm({ ...resetForm, confirmPassword: e.target.value })
+            }
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirm(!showConfirm)}
+            className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+          >
+            {showConfirm ? <FiEye size={18} /> : <FiEyeOff size={18} />}
+          </button>
+        </div>
       </div>
+
     </div>
 
     <DialogFooter>
@@ -590,6 +628,7 @@ export default function AdminUsersPage() {
     </DialogFooter>
   </DialogContent>
 </Dialog>
+
 
 
 

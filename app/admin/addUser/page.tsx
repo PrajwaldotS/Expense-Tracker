@@ -4,7 +4,8 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
-import { FiUser, FiMail, FiLock, FiPhone } from 'react-icons/fi'
+import { FiEye, FiEyeOff, FiLock, FiPhone } from 'react-icons/fi'
+
 
 type Gender = 'male' | 'female' | 'other'
 type IdProofType = 'aadhaar' | 'pan' | 'driving_license'
@@ -18,6 +19,8 @@ export default function CreateUserPage() {
   const [phone, setPhone] = useState('')
   const [dob, setDob] = useState('')
   const [gender, setGender] = useState<Gender | ''>('')
+  const [showCurrent, setShowCurrent] = useState(false)
+  const [showNew, setShowNew] = useState(false)
 
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null)
   const [idProofType, setIdProofType] = useState<IdProofType | ''>('')
@@ -183,13 +186,31 @@ export default function CreateUserPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <input
-              type="password"
-              className="w-full px-3 py-2 border rounded-lg"
-              placeholder="Temporary Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+           <div className="space-y-1">
+  <label className="text-sm font-medium text-muted-foreground">
+    Current Password
+  </label>
+
+  <div className="relative">
+    <FiLock className="absolute left-3 top-3 text-[#9b5de5]" />
+
+    <input
+      type={showCurrent ? 'text' : 'password'}
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className="w-full pl-10 pr-10 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowCurrent(!showCurrent)}
+      className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+    >
+      {showCurrent ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+    </button>
+  </div>
+</div>
+
 
             <div className="relative">
               <FiPhone className="absolute left-3 top-3 text-muted-foreground" />
