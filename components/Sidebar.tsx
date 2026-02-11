@@ -213,7 +213,7 @@ export function AppSidebar() {
             <NavItem href="/userDashboard" label="Dashboard" icon={MdOutlineSpaceDashboard} pathname={pathname} />
             <NavItem href="/userExpenses" label="My Expenses" icon={FaRupeeSign} pathname={pathname} />
 
-            <NavItem href="/admin/add-expense" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
+            <NavItem href="/admin/addExpenses" label="Add Expense" icon={FiPlusCircle} pathname={pathname} />
           </SidebarGroup>
         )}
 
