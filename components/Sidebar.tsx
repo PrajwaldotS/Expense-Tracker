@@ -30,9 +30,7 @@ import { MdOutlineSpaceDashboard } from "react-icons/md";
 import {
   FiUsers,
   FiFolder,
-  FiDollarSign,
   FiMapPin,
-  FiLock,
   FiPlusCircle,
   FiBarChart2
 } from 'react-icons/fi'

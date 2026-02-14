@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import { FiEye, FiEyeOff, FiLock } from 'react-icons/fi'
 
 export default function LoginPage() {
@@ -9,34 +8,46 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [msg, setMsg] = useState('')
   const [showCurrent, setShowCurrent] = useState(false)
-  const [showNew, setShowNew] = useState(false)
 
   useEffect(() => {
-    const logoutUser = async () => {
-      await supabase.auth.signOut()
-    }
-    logoutUser()
+    // Clear any old token when landing on login page
+    localStorage.removeItem('token')
   }, [])
 
   const login = async () => {
-    setMsg('')
+    try {
+      setMsg('')
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) return setMsg(error.message)
+      const res = await fetch('http://localhost:2294/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+      const data = await res.json()
 
-    const { data } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+      if (!res.ok) {
+        return setMsg(data.message || 'Login failed')
+      }
 
-    if (data?.role === 'admin') {
-      window.location.href = '/admin/adminDashboard'
-    } else {
-      window.location.href = '/userDashboard'
+      // Save JWT token
+      localStorage.setItem('token', data.token)
+
+      // Redirect based on role
+      if (data.user.role === 'admin') {
+        window.location.href = '/admin/adminDashboard'
+      } else {
+        window.location.href = '/userDashboard'
+      }
+
+    } catch (error) {
+      console.error(error)
+      setMsg('Something went wrong')
     }
   }
 
@@ -91,31 +102,30 @@ export default function LoginPage() {
             </div>
 
             <div>
-             <div className="space-y-1">
-  <label className="text-sm font-medium text-muted-foreground">
-    Current Password
-  </label>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Current Password
+                </label>
 
-  <div className="relative">
-    <FiLock className="absolute left-3 top-3 text-[#9b5de5]" />
+                <div className="relative">
+                  <FiLock className="absolute left-3 top-3 text-[#9b5de5]" />
 
-    <input
-      type={showCurrent ? 'text' : 'password'}
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      className="w-full pl-10 pr-10 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
-    />
+                  <input
+                    type={showCurrent ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-10 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
+                  />
 
-    <button
-      type="button"
-      onClick={() => setShowCurrent(!showCurrent)}
-      className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
-    >
-      {showCurrent ? <FiEye size={18} /> : <FiEyeOff size={18} />}
-    </button>
-  </div>
-</div>
-
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrent(!showCurrent)}
+                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                  >
+                    {showCurrent ? <FiEye size={18} /> : <FiEyeOff size={18} />}
+                  </button>
+                </div>
+              </div>
             </div>
 
             <button

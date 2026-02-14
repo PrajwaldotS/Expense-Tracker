@@ -1,12 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import { SidebarTrigger } from './ui/sidebar'
-import { FiBell } from 'react-icons/fi'
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import { CgProfile } from "react-icons/cg";
 import { Button } from "@/components/ui/button"
 import ProfileDropdown from './ProfileDropDown'
 
@@ -18,43 +15,43 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
-    const getRoleAndName = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token')
 
-      if (!user) {
+      if (!token) {
+        setIsLoggedIn(false)
         setLoading(false)
         return
       }
 
-      const { data } = await supabase
-        .from('users')
-        .select('role, name')
-        .eq('id', user.id)
-        .single()
+      try {
+        const res = await fetch('http://localhost:2294/api/users/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
 
-      setRole(data?.role || 'user')
-      setName(data?.name || user.email?.split('@')[0] || 'User')
-      setLoading(false)
+        if (!res.ok) {
+          localStorage.removeItem('token')
+          setIsLoggedIn(false)
+          setLoading(false)
+          return
+        }
+
+        const data = await res.json()
+
+        setRole(data.role)
+        setName(data.name || data.email?.split('@')[0] || 'User')
+        setIsLoggedIn(true)
+      } catch (error) {
+        console.error(error)
+        setIsLoggedIn(false)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    getRoleAndName()
-  }, [])
-
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setIsLoggedIn(!!user)
-    }
-
-    checkUser()
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session?.user)
-    })
-
-    return () => {
-      listener.subscription.unsubscribe()
-    }
+    fetchUser()
   }, [])
 
   if (loading) return null
@@ -66,10 +63,9 @@ export default function Navbar() {
         {/* LEFT */}
         <div className="flex items-center gap-4">
           <SidebarTrigger className="p-2 rounded-md hover:bg-muted transition" />
-          
         </div>
 
-        {/* CENTER (Desktop Title Highlight) */}
+        {/* CENTER */}
         <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
           <span className="text-xl font-bold text-foreground">
             Expense Management System
@@ -80,12 +76,12 @@ export default function Navbar() {
         <div className="flex items-center gap-4 ml-auto">
           
           <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-    >
-      {theme === "dark" ? <Moon size={18}/> : <Sun size={18}/>}
-    </Button>
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          >
+            {theme === "dark" ? <Moon size={18}/> : <Sun size={18}/>}
+          </Button>
 
           {/* User Info */}
           {isLoggedIn && name && (

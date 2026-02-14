@@ -1,7 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { FiTag } from 'react-icons/fi'
 import FormResetButton from '@/components/Resetbutton'
@@ -13,54 +12,80 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const loadPage = async () => {
-      setLoading(true)
-      await Promise.all([
-        checkAdmin(),
-      ])
-    }
-    loadPage()
-  }, [router])
-
-
     const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const token = localStorage.getItem('token')
 
-      if (!user) {
+      if (!token) {
         router.push('/login')
         return
       }
 
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+      try {
+        const res = await fetch('http://localhost:2294/api/users/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
 
-      if (data?.role !== 'admin') {
-        router.push('/Dashboard')
-      } else {
-        setLoading(false)
+        if (!res.ok) {
+          router.push('/login')
+          return
+        }
+
+        const data = await res.json()
+
+        if (data.role !== 'admin') {
+          router.push('/Dashboard')
+        } else {
+          setLoading(false)
+        }
+
+      } catch (error) {
+        console.error(error)
+        router.push('/login')
       }
     }
 
+    checkAdmin()
+  }, [router])
+
   const addCategory = async () => {
     setMsg('')
-    if (!name.trim()) return setMsg('Enter category name')
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return setMsg('Not logged in')
+    if (!name.trim()) {
+      return setMsg('Enter category name')
+    }
 
-    const { error } = await supabase.from('categories').insert({
-      name,
-      created_by: user.id,
-    })
+    const token = localStorage.getItem('token')
+    if (!token) {
+      return setMsg('Not logged in')
+    }
 
-    if (error) {
-      setMsg(error.message)
-    } else {
+    try {
+      const res = await fetch('http://localhost:2294/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name
+        })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setMsg(data.message || 'Error adding category')
+        return
+      }
+
       setMsg('Category added successfully!')
       setName('')
+
+    } catch (error) {
+      console.error(error)
+      setMsg('Something went wrong')
     }
   }
 
@@ -68,10 +93,9 @@ export default function CategoriesPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-[70vh]  px-4 mt-20">
+      <div className="min-h-[70vh] px-4 mt-20">
         <div className="w-full max-w-lg bg-card border shadow-sm rounded-xl p-6 space-y-6">
 
-          
           <div>
             <h2 className="text-xl font-semibold text-foreground">
               Add New Category
@@ -81,7 +105,6 @@ export default function CategoriesPage() {
             </p>
           </div>
 
-          
           <div className="space-y-1">
             <label className="text-sm font-medium text-muted-foreground">
               Category Name
@@ -96,14 +119,15 @@ export default function CategoriesPage() {
               />
             </div>
           </div>
+
           <button
             onClick={addCategory}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition shadow-sm">
             Add Category
           </button>
+
           <FormResetButton onReset={() => setName('')} />
 
-          {/* MESSAGE */}
           {msg && (
             <p className={`text-sm text-center ${
               msg.includes('success')
@@ -113,6 +137,7 @@ export default function CategoriesPage() {
               {msg}
             </p>
           )}
+
         </div>
       </div>
     </ProtectedRoute>

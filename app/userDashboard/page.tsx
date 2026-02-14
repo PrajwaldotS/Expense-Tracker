@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import {
   ResponsiveContainer,
@@ -15,34 +14,11 @@ import { FaRupeeSign } from 'react-icons/fa'
 import { FiMapPin, FiClock } from 'react-icons/fi'
 import UserDashboardShimmer from '@/components/skeletons/userDashboardSkeleton'
 
-/* ---------------- TYPES ---------------- */
-
-type ExpenseCategoryRow = {
-  amount: number
-  categories: {
-    name: string
-  } | null
-}
-
-type LastExpense = {
-  amount: number
-  expense_date: string
-  categories: {
-    name: string
-  } | null
-}
-type UserZoneRow = {
-  zones: {
-    name: string
-  }[] | null
-}
-
-
 export default function UserDashboard() {
   const [totalSpent, setTotalSpent] = useState<number>(0)
   const [zones, setZones] = useState<string[]>([])
   const [categoryData, setCategoryData] = useState<{ name: string; value: number }[]>([])
-  const [lastExpense, setLastExpense] = useState<LastExpense | null>(null)
+  const [lastExpense, setLastExpense] = useState<any | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 
   const COLORS = [
@@ -59,84 +35,46 @@ export default function UserDashboard() {
   }, [])
 
   const loadDashboard = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    const token = localStorage.getItem('token')
+    if (!token) return
 
-    /* -------- TOTAL EXPENSE -------- */
-    const { data: expenseRows } = await supabase
-      .from('expenses')
-      .select('amount')
-      .eq('user_id', user.id)
+    try {
+      const res = await fetch('http://localhost:2294/api/users/dashboard', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-    const total =
-      expenseRows?.reduce((sum, e) => sum + Number(e.amount), 0) || 0
+      if (!res.ok) return
 
-    setTotalSpent(total)
+      const data = await res.json()
 
-    /* -------- ZONES -------- */
-    const { data: zoneLinks } = await supabase
-  .from('user_zones')
-  .select('zones(name)')
-  .eq('user_id', user.id)
-  .returns<UserZoneRow[]>()
+      setTotalSpent(data.totalSpent || 0)
+      setZones(data.zones || [])
+      setCategoryData(data.categoryData || [])
+      setLastExpense(data.lastExpense || null)
 
-const zoneNames =
-  zoneLinks
-    ?.flatMap((z) => z.zones ?? [])
-    .map((zone) => zone.name) || []
-
-setZones(zoneNames)
-
-
-    /* -------- CATEGORY PIE -------- */
-    const { data: categoryRows } = await supabase
-      .from('expenses')
-      .select('amount, categories(name)')
-      .eq('user_id', user.id)
-      .returns<ExpenseCategoryRow[]>()
-
-    const categoryMap: Record<string, number> = {}
-
-    categoryRows?.forEach((row) => {
-      const name = row.categories?.name ?? 'Other'
-      categoryMap[name] = (categoryMap[name] || 0) + Number(row.amount)
-    })
-
-    setCategoryData(
-      Object.entries(categoryMap).map(([name, value]) => ({
-        name,
-        value,
-      }))
-    )
-
-    /* -------- LAST EXPENSE -------- */
-    const { data: last } = await supabase
-      .from('expenses')
-      .select('amount, expense_date, categories(name)')
-      .eq('user_id', user.id)
-      .order('expense_date', { ascending: false })
-      .limit(1)
-      .returns<LastExpense[]>()
-
-    setLastExpense(last?.[0] ?? null)
-
-    setLoading(false)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
   }
 
- if (loading) {
-  return (
-    <ProtectedRoute>
-      <div className="max-w-7xl mx-auto mt-20 px-4">
-        <UserDashboardShimmer />
-      </div>
-    </ProtectedRoute>
-  )
-}
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <div className="max-w-7xl mx-auto mt-20 px-4">
+          <UserDashboardShimmer />
+        </div>
+      </ProtectedRoute>
+    )
+  }
+
   return (
     <ProtectedRoute>
       <div className="max-w-7xl mx-auto mt-20 px-4 space-y-8">
 
-        {/* HEADER */}
         <div>
           <h1 className="text-2xl font-semibold text-foreground">User Dashboard</h1>
           <p className="text-sm text-muted-foreground">
@@ -144,10 +82,8 @@ setZones(zoneNames)
           </p>
         </div>
 
-        {/* TOP CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          {/* TOTAL EXPENSE */}
           <div className="bg-card border rounded-xl p-6 flex items-center gap-4">
             <div className="p-4 rounded-lg bg-[#f15bb5]/10 text-[#f15bb5]">
               <FaRupeeSign size={24} />
@@ -160,7 +96,6 @@ setZones(zoneNames)
             </div>
           </div>
 
-          {/* ZONES */}
           <div className="bg-card border rounded-xl p-6 flex items-center gap-4">
             <div className="p-4 rounded-lg bg-[#00bbf9]/10 text-[#00bbf9]">
               <FiMapPin size={24} />
@@ -175,7 +110,6 @@ setZones(zoneNames)
           </div>
         </div>
 
-        {/* CATEGORY PIE CHART */}
         <div className="bg-card border rounded-xl p-6">
           <h2 className="text-lg font-semibold mb-2">
             Category-wise Spending
@@ -220,7 +154,6 @@ setZones(zoneNames)
           )}
         </div>
 
-        {/* LAST EXPENSE */}
         <div className="bg-card border rounded-xl p-6 flex items-center gap-4">
           <div className="p-4 rounded-lg bg-[#9b5de5]/10 text-[#9b5de5]">
             <FiClock size={24} />
@@ -231,8 +164,8 @@ setZones(zoneNames)
             {lastExpense ? (
               <p className="font-medium">
                 ₹ {lastExpense.amount.toLocaleString('en-IN')} •{' '}
-                {lastExpense.categories?.name ?? 'Other'} •{' '}
-                {new Date(lastExpense.expense_date).toLocaleDateString()}
+                {lastExpense.category?.name ?? 'Other'} •{' '}
+                {new Date(lastExpense.expenseDate).toLocaleDateString()}
               </p>
             ) : (
               <p className="text-sm text-muted-foreground">

@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import {
   Table,
@@ -36,52 +35,45 @@ export default function AdminDashboard() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
 
-  useEffect(() => {
-    fetchUserTotals()
-    fetchTotalSpent()
-    checkAdmin()
-  }, [router])
+ useEffect(() => {
+  fetchDashboardData()
+}, [page, pageSize, search])
 
-  const checkAdmin = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return router.push('/login')
 
-    const { data } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (data?.role !== 'admin') router.push('/Dashboard')
-    else setLoading(false)
-  }
+ 
   const barChartData = userTotals.map((u) => ({
   name: u.name,
   total: Number(u.total) || 0,
 }))
 
-  const fetchUserTotals = async () => {
-    const { data, error } = await supabase
-      .from('admin_user_expense_totals')
-      .select('*')
+const fetchDashboardData = async () => {
+  setLoading(true)
 
-    if (error) {
-      console.error('User totals error:', error.message)
-      setLoading(false)
-      return
+  const token = localStorage.getItem('token')
+
+  const res = await fetch(
+    `http://localhost:2294/api/admin/reports/users?page=${page}&pageSize=${pageSize}&search=${search}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
+  )
 
-    setUserTotals(data || [])
+  const result = await res.json()
+
+  if (!res.ok) {
+    setUserTotals([])
+    setTotalSpent(0)
     setLoading(false)
+    return
   }
 
-  const fetchTotalSpent = async () => {
-    const { data, error } = await supabase.from('expenses').select('amount')
-    if (error) return console.error(error.message)
+  setUserTotals(result.data || [])
+  setTotalSpent(result.totalPlatformExpense || 0)
+  setLoading(false)
+}
 
-    const total = data.reduce((sum, e) => sum + e.amount, 0)
-    setTotalSpent(total)
-  }
 
   const filteredUsers = userTotals.filter((u) =>
     u.name.toLowerCase().includes(search.toLowerCase())

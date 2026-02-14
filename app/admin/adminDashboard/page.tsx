@@ -2,79 +2,67 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabaseClient'
 import { FiUsers, FiFolder, FiDollarSign, FiMapPin } from 'react-icons/fi'
 import AdminDashboardSkeleton from '@/components/skeletons/adminDashboardSkeleton'
 
 export default function AdminDashboard() {
   const router = useRouter()
+
   const [totalSpent, setTotalSpent] = useState(0)
   const [userTotals, setUserTotals] = useState<any[]>([])
   const [categoryTotals, setCategoryTotals] = useState<any[]>([])
   const [zoneTotal, setZoneTotal] = useState(0)
   const [loading, setLoading] = useState(true)
 
-  // 🔒 Protect admin route
+  // 🔒 Protect admin route + fetch dashboard
   useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+    const fetchDashboard = async () => {
+      const token = localStorage.getItem('token')
 
-      if (!user) return router.push('/login')
+      if (!token) {
+        router.push('/login')
+        return
+      }
 
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+      try {
+        const res = await fetch('http://localhost:2294/api/admin/dashboard', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
 
-      if (data?.role !== 'admin') router.push('/Dashboard')
+        if (!res.ok) {
+          router.push('/userDashboard')
+          return
+        }
+
+        const data = await res.json()
+
+        setTotalSpent(data.totalAmount || 0)
+        setZoneTotal(data.totalZones || 0)
+
+        // For UI count display
+        setUserTotals(Array(data.totalUsers).fill({}))
+        setCategoryTotals(Array(data.totalCategories).fill({}))
+
+      } catch (error) {
+        console.error(error)
+        router.push('/login')
+      } finally {
+        setLoading(false)
+      }
     }
 
-    checkAdmin()
+    fetchDashboard()
   }, [router])
 
-  // 📊 Fetch totals
-  useEffect(() => {
-    fetchUserTotals()
-    fetchCategoryTotals()
-    fetchTotalSpent()
-    fetchTotalZones()
-  }, [])
-
-  const fetchUserTotals = async () => {
-    const { data, error } = await supabase
-      .from('admin_user_expense_totals')
-      .select('*')
-
-    if (!error) setUserTotals(data || [])
-    setLoading(false)
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto mt-20 px-4">
+        <AdminDashboardSkeleton />
+      </div>
+    )
   }
-
-  const fetchCategoryTotals = async () => {
-    const { data, error } = await supabase
-      .from('admin_category_expense_totals')
-      .select('*')
-
-    if (!error) setCategoryTotals(data || [])
-  }
-
-  const fetchTotalZones = async () => {
-    const { count } = await supabase
-      .from('zones')
-      .select('*', { count: 'exact', head: true })
-
-    setZoneTotal(count || 0)
-  }
-
-  const fetchTotalSpent = async () => {
-    const { data } = await supabase.from('expenses').select('amount')
-    const total = data?.reduce((sum, e) => sum + e.amount, 0) || 0
-    setTotalSpent(total)
-  }
-
-  if (loading) return <div className="max-w-7xl mx-auto mt-20 px-4">
-      <AdminDashboardSkeleton />
-    </div>
 
   return (
     <div className="p-6 space-y-8 mt-16">
@@ -86,9 +74,8 @@ export default function AdminDashboard() {
           Snapshot of system-wide financial activity
         </p>
       </div>
-      
 
-      {/* 💰 HERO CARD — FULL WIDTH */}
+      {/* 💰 HERO CARD */}
       <div className="rounded-2xl bg-card border shadow-sm p-8 flex items-center gap-6">
         <div className="p-4 rounded-xl bg-[#f15bb5]/10 text-[#f15bb5]">
           <FiDollarSign size={32} />
@@ -101,7 +88,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* 📊 SECOND ROW — 3 EQUAL CARDS */}
+      {/* 📊 SECOND ROW */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
         {/* USERS */}

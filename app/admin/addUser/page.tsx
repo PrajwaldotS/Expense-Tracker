@@ -3,9 +3,7 @@
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabaseClient'
 import { FiEye, FiEyeOff, FiLock, FiPhone } from 'react-icons/fi'
-
 
 type Gender = 'male' | 'female' | 'other'
 type IdProofType = 'aadhaar' | 'pan' | 'driving_license'
@@ -19,8 +17,9 @@ export default function CreateUserPage() {
   const [phone, setPhone] = useState('')
   const [dob, setDob] = useState('')
   const [gender, setGender] = useState<Gender | ''>('')
+  const [role, setRole] = useState<'admin' | 'user'>('user')
+
   const [showCurrent, setShowCurrent] = useState(false)
-  const [showNew, setShowNew] = useState(false)
 
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null)
   const [idProofType, setIdProofType] = useState<IdProofType | ''>('')
@@ -31,20 +30,34 @@ export default function CreateUserPage() {
   /* ---------------- ADMIN CHECK ---------------- */
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
+      const token = localStorage.getItem('token')
+
+      if (!token) {
         router.push('/login')
         return
       }
 
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+      try {
+        const res = await fetch('http://localhost:2294/api/users/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
 
-      if (data?.role !== 'admin') {
-        router.push('/Dashboard')
+        if (!res.ok) {
+          router.push('/login')
+          return
+        }
+
+        const data = await res.json()
+
+        if (data.role !== 'admin') {
+          router.push('/Dashboard')
+        }
+
+      } catch (error) {
+        console.error(error)
+        router.push('/login')
       }
     }
 
@@ -53,111 +66,69 @@ export default function CreateUserPage() {
 
   /* ---------------- CREATE USER ---------------- */
   const createUser = async () => {
-  try {
-    setMsg('')
+    try {
+      setMsg('')
 
-    if (!name || !email || !password || !dob || !gender) {
-      setMsg('Please fill all required fields')
-      return
-    }
-
-    /* 1️⃣ CREATE AUTH USER */
-    const res = await fetch('/api/admin/create-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    })
-
-    const result = await res.json()
-
-    if (!res.ok || !result.userId) {
-      throw new Error(result.error || 'Failed to create user')
-    }
-
-    const userId: string = result.userId
-    const username = name.toLowerCase().replace(/\s+/g, '-')
-
-    /* 2️⃣ PROFILE PHOTO */
-    let profilePhotoUrl: string | null = null
-
-    if (profilePhoto) {
-      const ext = profilePhoto.type.split('/')[1] || 'jpg'
-      const fileName = `${username}-${dob}-${gender}-${username}.${ext}`
-
-      const upload = await supabase.storage
-        .from('profile-photos')
-        .upload(`${userId}/${fileName}`, profilePhoto, { upsert: true })
-
-      if (upload.error) {
-        throw new Error(upload.error.message)
+      if (!name || !email || !password || !dob || !gender || !role ) {
+        setMsg('Please fill all required fields')
+        return
       }
 
-      profilePhotoUrl = supabase.storage
-        .from('profile-photos')
-        .getPublicUrl(`${userId}/${fileName}`).data.publicUrl
-    }
-
-    /* 3️⃣ ID PROOF */
-    let idProofUrl: string | null = null
-
-    if (idProofFile && idProofType) {
-      const ext = idProofFile.type.split('/')[1] || 'jpg'
-      const fileName = `${username}-${dob}-${idProofType}-${username}.${ext}`
-
-      const upload = await supabase.storage
-        .from('id-proofs')
-        .upload(`${userId}/${fileName}`, idProofFile, { upsert: true })
-
-      if (upload.error) {
-        throw new Error(upload.error.message)
+      const token = localStorage.getItem('token')
+      if (!token) {
+        setMsg('Not authorized')
+        return
       }
 
-      idProofUrl = supabase.storage
-        .from('id-proofs')
-        .getPublicUrl(`${userId}/${fileName}`).data.publicUrl
-    }
+      const formData = new FormData()
+      formData.append("name", name)
+      formData.append("email", email)
+      formData.append("password", password)
+      formData.append("role", role)
+      formData.append("phone", phone)
+      formData.append("dob", dob)
+      formData.append("gender", gender)
+          
+      if (profilePhoto) {
+        formData.append("profilePhoto", profilePhoto)
+      }
+      if (idProofFile && idProofType) {
+        formData.append('idProofType', idProofType)
+        formData.append('idProofFile', idProofFile)
+      }
 
-    /* 4️⃣ UPDATE USER TABLE */
-    const update = await supabase
-      .from('users')
-      .update({
-        phone: phone || null,
-        dob,
-        gender,
-        profile_photo_url: profilePhotoUrl,
-        id_proof_type: idProofType || null,
-        id_proof_url: idProofUrl,
+      const res = await fetch('http://localhost:2294/api/admin/create-user', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
       })
-      .eq('id', userId)
-      .select()
 
-    if (update.error) {
-      throw new Error(update.error.message)
+      const result = await res.json()
+
+      if (!res.ok) {
+        throw new Error(result.message || 'Failed to create user')
+      }
+
+      setMsg('User created successfully!')
+
+      /* RESET */
+      setName('')
+      setEmail('')
+      setPassword('')
+      setPhone('')
+      setDob('')
+      setGender('')
+      setProfilePhoto(null)
+      setIdProofType('')
+      setIdProofFile(null)
+
+    } catch (err: any) {
+      console.error('Create user failed:', err)
+      setMsg(err.message || 'Something went wrong')
     }
-
-    if (!update.data || update.data.length === 0) {
-      throw new Error('User update blocked (RLS)')
-    }
-
-    setMsg('User created successfully!')
-
-    /* RESET */
-    setName('')
-    setEmail('')
-    setPassword('')
-    setPhone('')
-    setDob('')
-    setGender('')
-    setProfilePhoto(null)
-    setIdProofType('')
-    setIdProofFile(null)
-
-  } catch (err: any) {
-    console.error('Create user failed:', err)
-    setMsg(err.message || 'Something went wrong')
   }
-}
-
 
   return (
     <ProtectedRoute>
@@ -186,31 +157,30 @@ export default function CreateUserPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-           <div className="space-y-1">
-  <label className="text-sm font-medium text-muted-foreground">
-    Current Password
-  </label>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-muted-foreground">
+                Password
+              </label>
 
-  <div className="relative">
-    <FiLock className="absolute left-3 top-3 text-[#9b5de5]" />
+              <div className="relative">
+                <FiLock className="absolute left-3 top-3 text-[#9b5de5]" />
 
-    <input
-      type={showCurrent ? 'text' : 'password'}
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      className="w-full pl-10 pr-10 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
-    />
+                <input
+                  type={showCurrent ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-10 py-2 border rounded-lg focus:ring-2 focus:ring-[#9b5de5] outline-none"
+                />
 
-    <button
-      type="button"
-      onClick={() => setShowCurrent(!showCurrent)}
-      className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
-    >
-      {showCurrent ? <FiEye size={18} /> : <FiEyeOff size={18} />}
-    </button>
-  </div>
-</div>
-
+                <button
+                  type="button"
+                  onClick={() => setShowCurrent(!showCurrent)}
+                  className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                >
+                  {showCurrent ? <FiEye size={18} /> : <FiEyeOff size={18} />}
+                </button>
+              </div>
+            </div>
 
             <div className="relative">
               <FiPhone className="absolute left-3 top-3 text-muted-foreground" />
@@ -239,14 +209,17 @@ export default function CreateUserPage() {
               <option className='bg-card text-foreground' value="female">Female</option>
               <option className='bg-card text-foreground' value="other">Prefer Not to say</option>
             </select>
-            <label htmlFor="profile-photo" className=" text-muted-foreground">Profile Photo (Optional)</label>
+
+            <label className="text-muted-foreground">
+              Profile Photo (Optional)
+            </label>
             <input
-              id="profile-photo"
               type="file"
               accept="image/*"
               onChange={(e) => setProfilePhoto(e.target.files?.[0] ?? null)}
-           />
-            </div>
+              name="profilePhoto"
+            />
+          </div>
 
           <button
             onClick={createUser}
@@ -256,7 +229,11 @@ export default function CreateUserPage() {
           </button>
 
           {msg && (
-            <p className={`text-sm text-center ${msg.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
+            <p className={`text-sm text-center ${
+              msg.includes('success')
+                ? 'text-green-500'
+                : 'text-red-500'
+            }`}>
               {msg}
             </p>
           )}

@@ -42,25 +42,28 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${spaceMono.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-        >
-          <SidebarProvider>
-            
-            {/* Sidebar only if logged in */}
-            <AuthGate>
-              <AppSidebar />
-              <Navbar />
-              <AppFooter />
-            </AuthGate>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+  <SidebarProvider>
+    <AuthGate>
+      <div className="flex min-h-screen w-full">
+        
+        <AppSidebar />
 
-            <main className="w-full min-h-screen mb-10">       
-        <div className="">{children}</div>
-            </main>
-          </SidebarProvider>
-        </ThemeProvider>
+        <div className="flex flex-col flex-1">
+          <Navbar />
+
+          <main className="flex-1 mt-16 mb-10">
+            {children}
+          </main>
+
+          <AppFooter />
+        </div>
+
+      </div>
+    </AuthGate>
+  </SidebarProvider>
+</ThemeProvider>
+
       </body>
     </html>
   );

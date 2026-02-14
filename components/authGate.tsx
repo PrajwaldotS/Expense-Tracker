@@ -1,29 +1,16 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setIsLoggedIn(!!user)
-      setLoading(false)
-    }
-
-    checkUser()
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session?.user)
-    })
-
-    return () => listener.subscription.unsubscribe()
+    const token = localStorage.getItem('token')
+    setIsLoggedIn(!!token)
   }, [])
 
-  if (loading) return null
+  if (isLoggedIn === null) return null
 
   return isLoggedIn ? <>{children}</> : null
 }

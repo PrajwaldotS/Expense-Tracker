@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import {
   Table,
   TableBody,
@@ -22,33 +21,59 @@ export default function ExpenseTable() {
   const [pageSize, setPageSize] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
 
-  useEffect(() => {
-    supabase.from('categories').select('id, name').then(({ data }) => {
-      setCategories(data || [])
+  /* 🔹 Load categories */
+  const fetchCategories = async () => {
+    const token = localStorage.getItem('token')
+
+    const res = await fetch('http://localhost:2294/api/categories', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
-  }, [])
 
-  const fetchExpenses = async () => {
-    const from = (page - 1) * pageSize
-    const to = from + pageSize - 1
-
-    let query = supabase
-      .from('expenses')
-      .select('id, amount, description, expense_date, categories(name)', { count: 'exact' })
-      .order('expense_date', { ascending: false })
-      .range(from, to)
-
-    if (search) query = query.ilike('categories.name', `%${search}%`)
-    if (selectedCategory) query = query.eq('category_id', selectedCategory)
-    if (fromDate) query = query.gte('expense_date', fromDate)
-    if (toDate) query = query.lte('expense_date', toDate)
-
-    const { data, count, error } = await query
-    if (error) return console.error(error.message)
-
-    setExpenses(data || [])
-    setTotalPages(Math.ceil((count || 0) / pageSize))
+    const data = await res.json()
+    if (res.ok) {
+      setCategories(data || [])
+    }
   }
+
+  /* 🔹 Load expenses */
+  const fetchExpenses = async () => {
+    const token = localStorage.getItem('token')
+
+    const query = new URLSearchParams({
+      page: String(page),
+      pageSize: String(pageSize),
+      search,
+      categoryId: selectedCategory,
+      fromDate,
+      toDate,
+    })
+
+    const res = await fetch(
+      `http://localhost:2294/api/expenses?${query.toString()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+
+    const result = await res.json()
+
+    if (!res.ok) {
+      setExpenses([])
+      setTotalPages(1)
+      return
+    }
+
+    setExpenses(result.data || [])
+    setTotalPages(result.totalPages || 1)
+  }
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
 
   useEffect(() => {
     fetchExpenses()
@@ -59,7 +84,7 @@ export default function ExpenseTable() {
 
       {/* 🔎 FILTERS */}
       <div className="bg-card border shadow-sm rounded-xl p-4 grid gap-4 md:grid-cols-4">
-        
+
         {/* Search */}
         <div className="relative">
           <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
@@ -123,7 +148,7 @@ export default function ExpenseTable() {
                 </TableCell>
                 <TableCell>
                   <span className="px-2 py-1 text-xs rounded-md bg-[#9b5de5]/10 text-[#9b5de5]">
-                    {e.categories?.name}
+                    {e.category_name}
                   </span>
                 </TableCell>
                 <TableCell className="text-muted-foreground">

@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import { FiMapPin } from 'react-icons/fi'
 
 type Zone = {
@@ -22,42 +21,36 @@ export default function ZoneSelect({
     const loadZones = async () => {
       setLoading(true)
 
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
+      const token = localStorage.getItem('token')
+      if (!token) {
         setZones([])
         setLoading(false)
         return
       }
 
-      const { data: userData } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+      try {
+        const res = await fetch('http://localhost:2294/api/zones', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
 
-      if (userData?.role === 'admin') {
-        const { data } = await supabase
-          .from('zones')
-          .select('id, name')
-          .order('name')
+        if (!res.ok) {
+          setZones([])
+          setLoading(false)
+          return
+        }
 
+        const data = await res.json()
         setZones(data || [])
-        setLoading(false)
-        return
-      }
 
-      const { data } = await supabase
-        .from('user_zones')
-        .select('zones(id, name)')
-        .eq('user_id', user.id)
+        if (data?.length === 1) {
+          onChange(data[0].id)
+        }
 
-      const assignedZones: Zone[] =
-        data?.map((z: any) => z.zones).filter(Boolean) || []
-
-      setZones(assignedZones)
-
-      if (assignedZones.length === 1) {
-        onChange(assignedZones[0].id)
+      } catch (error) {
+        console.error(error)
+        setZones([])
       }
 
       setLoading(false)

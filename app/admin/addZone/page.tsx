@@ -1,30 +1,61 @@
 'use client'
 import { useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { FiMapPin } from 'react-icons/fi'
 
 export default function AddZonePage() {
   const [name, setName] = useState('')
   const [msg, setMsg] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const addZone = async () => {
     setMsg('')
-    if (!name.trim()) return setMsg('Zone name required')
 
-    const { error } = await supabase.from('zones').insert({ name })
-    if (error) return setMsg(error.message)
+    if (!name.trim()) {
+      return setMsg('Zone name required')
+    }
 
-    setMsg('Zone added successfully!')
-    setName('')
+    const token = localStorage.getItem('token')
+    if (!token) {
+      return setMsg('Not authorized')
+    }
+
+    setLoading(true)
+
+    try {
+      const res = await fetch('http://localhost:2294/api/zones', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ name })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setMsg(data.message || 'Error adding zone')
+        setLoading(false)
+        return
+      }
+
+      setMsg('Zone added successfully!')
+      setName('')
+
+    } catch (error) {
+      console.error(error)
+      setMsg('Something went wrong')
+    }
+
+    setLoading(false)
   }
 
   return (
     <ProtectedRoute>
-      <div className="min-h-[70vh]  px-4 mt-20">
+      <div className="min-h-[70vh] px-4 mt-20">
         <div className="w-full max-w-lg bg-card border shadow-sm rounded-xl p-6 space-y-6">
 
-          {/* HEADER */}
           <div>
             <h1 className="text-xl font-semibold text-foreground">Add New Zone</h1>
             <p className="text-sm text-muted-foreground">
@@ -32,7 +63,6 @@ export default function AddZonePage() {
             </p>
           </div>
 
-          {/* INPUT */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-muted-foreground">Zone Name</label>
             <div className="relative">
@@ -46,15 +76,14 @@ export default function AddZonePage() {
             </div>
           </div>
 
-          {/* BUTTON */}
           <button
             onClick={addZone}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition shadow-sm"
+            disabled={loading}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition shadow-sm disabled:opacity-50"
           >
-            Add Zone
+            {loading ? 'Adding Zone...' : 'Add Zone'}
           </button>
 
-          {/* MESSAGE */}
           {msg && (
             <p className={`text-sm text-center ${
               msg.includes('success')

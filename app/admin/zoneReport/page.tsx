@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
@@ -41,23 +40,33 @@ export default function ZoneSummaryPage() {
   value: Number(z.total_expenses) || 0,
 }))
 
-  const fetchZones = async () => {
-    const from = (page - 1) * pageSize
-    const to = from + pageSize - 1
+ const fetchZones = async () => {
+  setLoading(true)
 
-    let query = supabase
-      .from('admin_zone_summary')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(from, to)
+  const token = localStorage.getItem('token')
 
-    if (search) query = query.ilike('name', `%${search}%`)
+  const res = await fetch(
+    `http://localhost:2294/api/admin/zone-summary?page=${page}&pageSize=${pageSize}&search=${search}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
 
-    const { data, count } = await query
-    setZones(data || [])
-    setTotalPages(Math.ceil((count || 0) / pageSize))
+  const result = await res.json()
+
+  if (!res.ok) {
+    setZones([])
+    setTotalPages(1)
     setLoading(false)
+    return
   }
+
+  setZones(result.data || [])
+  setTotalPages(result.totalPages || 1)
+  setLoading(false)
+}
 
   useEffect(() => {
     fetchZones()

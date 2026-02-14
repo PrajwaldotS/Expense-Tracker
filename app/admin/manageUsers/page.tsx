@@ -79,38 +79,83 @@ export default function AdminUsersPage() {
     fetchUsers()
   }, [])
 
-  const checkAdmin = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return router.push('/login')
+ const checkAdmin = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return router.push('/login')
 
-    const { data } = await supabase.from('users').select('role').eq('id', user.id).single()
-    if (data?.role !== 'admin') router.push('/Dashboard')
-    setLoading(false)
+  const res = await fetch('http://localhost:2294/api/users/me', {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  const data = await res.json()
+
+  if (!res.ok || data.role !== 'admin') {
+    router.push('/Dashboard')
   }
 
-  const fetchUsers = async () => {
-    const res = await fetch('/api/admin/user')
-    const data = await res.json()
-    setUsers(Array.isArray(data) ? data : [])
-  }
+  setLoading(false)
+}
 
-  const loadZones = async (userId: string) => {
-    const { data: allZones } = await supabase.from('zones').select('id,name')
-    const { data: userZones } = await supabase.from('user_zones').select('zone_id').eq('user_id', userId)
-    setZones(allZones || [])
-    setAssignedZones(userZones?.map(z => z.zone_id) || [])
-  }
+ const fetchUsers = async () => {
+  const token = localStorage.getItem('token')
 
-  const toggleZone = async (zoneId: string) => {
-    if (!selectedUser) return
-    if (assignedZones.includes(zoneId)) {
-      await supabase.from('user_zones').delete().eq('user_id', selectedUser.id).eq('zone_id', zoneId)
-    } else {
-      await supabase.from('user_zones').insert({ user_id: selectedUser.id, zone_id: zoneId })
+  const res = await fetch('http://localhost:2294/api/admin/users', {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  const data = await res.json()
+  setUsers(Array.isArray(data) ? data : [])
+}
+
+
+const loadZones = async (userId: string) => {
+  const token = localStorage.getItem('token')
+
+  // ✅ Get ALL zones
+  const zonesRes = await fetch(
+    `http://localhost:2294/api/zones`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
     }
-    loadZones(selectedUser.id)
-    fetchUsers()
-  }
+  )
+
+  // ✅ Get assigned zones for user
+  const userZonesRes = await fetch(
+    `http://localhost:2294/api/admin/user-zones/${userId}`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
+  )
+
+  const zonesData = await zonesRes.json()
+  const userZonesData = await userZonesRes.json()
+
+  setZones(zonesData || [])
+  setAssignedZones(userZonesData || [])
+}
+
+
+ const toggleZone = async (zoneId: string) => {
+  if (!selectedUser) return
+
+  const token = localStorage.getItem('token')
+
+  await fetch('http://localhost:2294/api/admin/toggle-zone', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      userId: selectedUser.id,
+      zoneId
+    })
+  })
+
+  loadZones(selectedUser.id)
+  fetchUsers()
+}
+
 
   const openEditDialog = (u: any) => {
     setEditingUser(u)
@@ -128,46 +173,31 @@ export default function AdminUsersPage() {
   const saveUserEdit = async () => {
   if (!editingUser) return
 
-  let profileUrl = editingUser.profile_photo_url || null
+  const token = localStorage.getItem('token')
 
-  // Upload profile photo (client side is OK)
+  const formData = new FormData()
+  formData.append('name', editForm.name)
+  formData.append('email', editForm.email)
+  formData.append('dob', editForm.dob)
+  formData.append('id_proof_type', editForm.id_proof_type)
+  formData.append('role', editForm.role)
+  formData.append('status', editForm.status)
+
   if (editForm.profilePhoto) {
-    const ext = editForm.profilePhoto.name.split('.').pop() || 'jpg'
-    const filePath = `profiles/${editingUser.id}.${ext}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('profile-photos')
-      .upload(filePath, editForm.profilePhoto, { upsert: true })
-
-    if (uploadError) {
-      alert(uploadError.message)
-      return
-    }
-
-    profileUrl = supabase.storage
-      .from('profile-photos')
-      .getPublicUrl(filePath).data.publicUrl
+    formData.append('profilePhoto', editForm.profilePhoto)
   }
 
-  // Send update to ADMIN API (bypasses RLS)
-  const res = await fetch('/api/admin/update-user', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      userId: editingUser.id,
-      name: editForm.name,
-      email: editForm.email,
-      dob: editForm.dob,
-      id_proof_type: editForm.id_proof_type,
-      profile_photo_url: profileUrl,
-      role: editForm.role,
-    }),
-  })
-
-  const data = await res.json()
+  const res = await fetch(
+    `http://localhost:2294/api/admin/update-user/${editingUser.id}`,
+    {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData
+    }
+  )
 
   if (!res.ok) {
-    alert(data.error || 'Failed to update user')
+    alert('Failed to update user')
     return
   }
 
@@ -176,45 +206,60 @@ export default function AdminUsersPage() {
 }
 
 
-  const openResetPassword = (email: string) => {
-    setResetUserEmail(email)
+
+
+   const deleteUser = async (id: string) => {
+    console.log('Attempting to delete user with ID:', id)
+  if (!confirm('Delete this user?')) return
+
+  const token = localStorage.getItem('token')
+
+  await fetch(`http://localhost:2294/api/admin/delete-user/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  fetchUsers()
+}
+  const openResetPassword = (user: any) => {
+    setResetUserEmail(user.id)
     setResetDialogOpen(true)
     setResetForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
   }
-   const deleteUser = async (id: string) => {
-    if (!confirm('Delete this user?')) return
-    await fetch('/api/admin/delete-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: id }),
-    })
-    fetchUsers()
+ const handleResetPassword = async () => {
+  if (!resetUserEmail) return
+
+  if (resetForm.newPassword !== resetForm.confirmPassword) {
+    return alert('Passwords do not match')
   }
-  const handleResetPassword = async () => {
-    if (!resetUserEmail) return
+  console.log('Attempting to reset password for user ID:', resetUserEmail)
 
-    if (resetForm.newPassword !== resetForm.confirmPassword) {
-      return alert('Passwords do not match')
-    }
+  setResetLoading(true)
 
-    setResetLoading(true)
+  const token = localStorage.getItem('token')
 
-    const { error } = await supabase.auth.signInWithPassword({
+  const res = await fetch(`http://localhost:2294/api/admin/reset-password/${resetUserEmail}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
       email: resetUserEmail,
-      password: resetForm.currentPassword,
+      newPassword: resetForm.newPassword
     })
+  })
 
-    if (error) {
-      setResetLoading(false)
-      return alert('Current password incorrect')
-    }
-
-    await supabase.auth.updateUser({ password: resetForm.newPassword })
-
+  if (!res.ok) {
     setResetLoading(false)
-    setResetDialogOpen(false)
-    alert('Password updated')
+    return alert('Failed to reset password')
   }
+
+  setResetLoading(false)
+  setResetDialogOpen(false)
+  alert('Password updated')
+}
+
   const isInactiveFor3Days = (lastSignIn: string | null) => {
   if (!lastSignIn) return true // never logged in → inactive
 
@@ -343,7 +388,7 @@ export default function AdminUsersPage() {
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => openEditDialog(u)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openResetPassword(u.email)}>Reset Password</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openResetPassword(u)}>Reset Password</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => { setSelectedUser(u); setZoneDialogOpen(true); loadZones(u.id) }}>
                           Manage Zones
                         </DropdownMenuItem>
@@ -514,10 +559,10 @@ export default function AdminUsersPage() {
           </DialogHeader>
 
           <div className="space-y-3">
-            {zones.map(z => {
+            {zones.map((z,index) => {
               const has = assignedZones.includes(z.id)
               return (
-                <div key={z.id} className="flex justify-between items-center">
+                <div key={z.id || index} className="flex justify-between items-center">
                   <span>{z.name}</span>
                   <Button
                     size="sm"
@@ -632,6 +677,8 @@ export default function AdminUsersPage() {
         Cancel
       </Button>
       <Button onClick={handleResetPassword} disabled={resetLoading}>
+
+
         {resetLoading ? 'Updating...' : 'Update Password'}
       </Button>
     </DialogFooter>

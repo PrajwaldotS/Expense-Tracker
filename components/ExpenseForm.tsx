@@ -1,9 +1,8 @@
 'use client'
 import { useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import CategorySelect from './CategorySelect'
 import ZoneSelect from './ZoneSelect'
-import { FiFileText , FiUpload } from 'react-icons/fi'
+import { FiFileText } from 'react-icons/fi'
 import FormResetButton from './Resetbutton'
 import { FaRupeeSign } from "react-icons/fa";
 
@@ -16,80 +15,85 @@ export default function ExpenseForm() {
   const [loading, setLoading] = useState(false)
   const [receipt, setReceipt] = useState<File | null>(null)
 
- const addExpense = async () => {
-  setMsg('')
+  const addExpense = async () => {
+    setMsg('')
 
-  if (!categoryId) return setMsg('Please select a category')
-  if (!zoneId) return setMsg('Please select a zone')
-  if (!amount || Number(amount) <= 0) return setMsg('Enter a valid amount')
+    if (!categoryId) return setMsg('Please select a category')
+    if (!zoneId) return setMsg('Please select a zone')
+    if (!amount || Number(amount) <= 0) return setMsg('Enter a valid amount')
 
-  setLoading(true)
+    setLoading(true)
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    setMsg('Not logged in')
-    setLoading(false)
-    return
-  }
-
-  let receiptUrl: string | null = null
-
-  // 🔹 STEP 1: UPLOAD RECEIPT (IF EXISTS)
-  if (receipt) {
-    const ext = receipt.name.split('.').pop()
-    const filePath = `receipts/${user.id}/${Date.now()}.${ext}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('expense-receipts')
-      .upload(filePath, receipt, {
-        cacheControl: '3600',
-        upsert: false,
-      })
-
-    if (uploadError) {
-      setMsg(uploadError.message)
+    const token = localStorage.getItem('token')
+    if (!token) {
+      setMsg('Not logged in')
       setLoading(false)
       return
     }
 
-    // 🔹 STEP 2: GET PUBLIC URL
-    const { data } = supabase.storage
-      .from('expense-receipts')
-      .getPublicUrl(filePath)
+    try {
+      // 🔹 STEP 1: CREATE EXPENSE
+      const res = await fetch('http://localhost:2294/api/expenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          categoryId,
+          zoneId,
+          amount: Number(amount),
+          description: desc,
+          expenseDate: new Date().toISOString()
+        })
+      })
 
-    receiptUrl = data.publicUrl
+      const data = await res.json()
+
+      if (!res.ok) {
+        setMsg(data.message || 'Error adding expense')
+        setLoading(false)
+        return
+      }
+
+      const expenseId = data.id
+
+      // 🔹 STEP 2: UPLOAD RECEIPT IF EXISTS
+      if (receipt) {
+        const formData = new FormData()
+        formData.append('image', receipt)
+
+        await fetch(
+          `http://localhost:2294/api/expenses/${expenseId}/upload-receipt`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`
+            },
+            body: formData
+          }
+        )
+      }
+
+      setMsg('Expense added successfully!')
+      setAmount('')
+      setDesc('')
+      setCategoryId('')
+      setZoneId('')
+      setReceipt(null)
+
+    } catch (error) {
+      console.error(error)
+      setMsg('Something went wrong')
+    }
+
+    setLoading(false)
   }
-
-  // 🔹 STEP 3: INSERT EXPENSE
-  const { error } = await supabase.from('expenses').insert({
-    user_id: user.id,
-    category_id: categoryId,
-    zone_id: zoneId,
-    amount: Number(amount),
-    description: desc,
-    expense_date: new Date().toISOString().split('T')[0],
-    receipt_url: receiptUrl,
-  })
-
-  if (error) {
-    setMsg(error.message)
-  } else {
-    setMsg('Expense added successfully!')
-    setAmount('')
-    setDesc('')
-    setCategoryId('')
-    setZoneId('')
-    setReceipt(null)
-  }
-
-  setLoading(false)
-}
 
   return (
-    <div className="min-h-[70vh]  px-4 mt-20">
+    <div className="min-h-[70vh] px-4 mt-20">
       <div className="w-full max-w-xl bg-card border shadow-sm rounded-xl p-6 space-y-6">
 
-        {/* HEADER */}
         <div>
           <h2 className="text-xl font-semibold text-foreground">Add New Expense</h2>
           <p className="text-sm text-muted-foreground">
@@ -97,7 +101,6 @@ export default function ExpenseForm() {
           </p>
         </div>
 
-        {/* FORM GRID */}
         <div className="grid gap-4 md:grid-cols-2">
 
           <div className="space-y-1">
@@ -110,7 +113,6 @@ export default function ExpenseForm() {
             <ZoneSelect value={zoneId} onChange={setZoneId} />
           </div>
 
-          {/* Amount */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-muted-foreground">Amount</label>
             <div className="relative">
@@ -125,7 +127,6 @@ export default function ExpenseForm() {
             </div>
           </div>
 
-          {/* Description */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-muted-foreground">Description</label>
             <div className="relative">
@@ -139,21 +140,19 @@ export default function ExpenseForm() {
             </div>
           </div>
         </div>
-          {/* Receipt Upload */}
-          <div className="space-y-1 md:col-span-2">
-            <label className="text-sm font-medium text-muted-foreground">
-              Receipt (optional)
-            </label>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => setReceipt(e.target.files?.[0] || null)}
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-        
 
-        {/* ACTION BUTTON */}
+        <div className="space-y-1 md:col-span-2">
+          <label className="text-sm font-medium text-muted-foreground">
+            Receipt (optional)
+          </label>
+          <input
+            type="file"
+            accept="image/*,.pdf"
+            onChange={(e) => setReceipt(e.target.files?.[0] || null)}
+            className="w-full border rounded-lg px-3 py-2"
+          />
+        </div>
+
         <button
           onClick={addExpense}
           disabled={loading}
@@ -161,14 +160,15 @@ export default function ExpenseForm() {
         >
           {loading ? 'Adding Expense...' : 'Add Expense'}
         </button>
+
         <FormResetButton onReset={() => {
           setAmount('')
           setDesc('')
           setCategoryId('')
           setZoneId('')
+          setReceipt(null)
         }}/>
 
-        {/* MESSAGE */}
         {msg && (
           <p className={`text-sm text-center ${
             msg.includes('success')
