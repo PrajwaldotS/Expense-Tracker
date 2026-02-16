@@ -1,16 +1,25 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
-    setIsLoggedIn(!!token)
-  }, [])
 
-  if (isLoggedIn === null) return null
+    if (!token) {
+      router.replace('/') // redirect to login
+    } else {
+      setIsLoggedIn(true)
+    }
+  }, [router])
 
-  return isLoggedIn ? <>{children}</> : null
+  if (isLoggedIn === null) {
+    return <div>Checking authentication...</div>
+  }
+
+  return <>{children}</>
 }

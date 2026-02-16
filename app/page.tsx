@@ -11,6 +11,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     // Clear any old token when landing on login page
+    
     localStorage.removeItem('token')
   }, [])
 
@@ -50,7 +51,8 @@ export default function LoginPage() {
       setMsg('Something went wrong')
     }
   }
-
+ 
+ 
   return (
     <div className="min-h-screen flex bg-background">
 

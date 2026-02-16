@@ -44,8 +44,8 @@ export default function RootLayout({
       >
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
   <SidebarProvider>
-    <AuthGate>
-      <div className="flex min-h-screen w-full">
+    
+      <div className="flex min-h-screen w-full ">
         
         <AppSidebar />
 
@@ -53,6 +53,7 @@ export default function RootLayout({
           <Navbar />
 
           <main className="flex-1 mt-16 mb-10">
+            
             {children}
           </main>
 
@@ -60,7 +61,7 @@ export default function RootLayout({
         </div>
 
       </div>
-    </AuthGate>
+    
   </SidebarProvider>
 </ThemeProvider>
 
