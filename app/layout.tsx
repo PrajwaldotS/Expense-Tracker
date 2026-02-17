@@ -9,6 +9,11 @@ import { AppSidebar } from "@/components/Sidebar";
 import AuthGate from "@/components/authGate";
 import { Space_Mono } from 'next/font/google'
 import AppFooter from "@/components/footer";
+import { ToastProvider } from "@/components/toast-1";
+
+
+
+
 
 const spaceMono = Space_Mono({
   subsets: ['latin'],
@@ -31,7 +36,10 @@ export const metadata: Metadata = {
   description: "Startup expense management system",
 };
 
+
+
 export default function RootLayout({
+  
   children,
 }: {
   children: React.ReactNode;
@@ -43,7 +51,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${spaceMono.variable} ${geistMono.variable} antialiased`}
       >
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-  <SidebarProvider>
+      <SidebarProvider>
     
       <div className="flex min-h-screen w-full ">
         
@@ -54,7 +62,12 @@ export default function RootLayout({
 
           <main className="flex-1 mt-16 mb-10">
             
-            {children}
+           <ToastProvider>
+          {children}
+        </ToastProvider>
+            
+
+            
           </main>
 
           <AppFooter />

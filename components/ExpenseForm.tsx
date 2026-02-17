@@ -1,10 +1,12 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CategorySelect from './CategorySelect'
 import ZoneSelect from './ZoneSelect'
 import { FiFileText } from 'react-icons/fi'
 import FormResetButton from './Resetbutton'
 import { FaRupeeSign } from "react-icons/fa";
+import { useToast } from '@/components/toast-1'
+
 
 export default function ExpenseForm() {
   const [zoneId, setZoneId] = useState('')
@@ -14,6 +16,8 @@ export default function ExpenseForm() {
   const [msg, setMsg] = useState('')
   const [loading, setLoading] = useState(false)
   const [receipt, setReceipt] = useState<File | null>(null)
+  const { showToast } = useToast()
+
 
   const addExpense = async () => {
     setMsg('')
@@ -89,6 +93,16 @@ export default function ExpenseForm() {
 
     setLoading(false)
   }
+  useEffect(() => {
+  if (!msg) return
+
+  const type = msg.toLowerCase().includes('success')
+    ? 'success'
+    : 'error'
+
+  showToast(msg, type, 'bottom-right')
+}, [msg])
+
 
   return (
     <div className="min-h-[70vh] px-4 mt-20">
@@ -161,23 +175,8 @@ export default function ExpenseForm() {
           {loading ? 'Adding Expense...' : 'Add Expense'}
         </button>
 
-        <FormResetButton onReset={() => {
-          setAmount('')
-          setDesc('')
-          setCategoryId('')
-          setZoneId('')
-          setReceipt(null)
-        }}/>
 
-        {msg && (
-          <p className={`text-sm text-center ${
-            msg.includes('success')
-              ? 'text-[#00f5d4]'
-              : 'text-destructive'
-          }`}>
-            {msg}
-          </p>
-        )}
+        
       </div>
     </div>
   )

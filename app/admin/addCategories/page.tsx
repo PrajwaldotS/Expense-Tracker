@@ -4,15 +4,31 @@ import { useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { FiTag } from 'react-icons/fi'
 import FormResetButton from '@/components/Resetbutton'
+import { useToast } from '@/components/toast-1'
 
 export default function CategoriesPage() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [msg, setMsg] = useState('')
   const [loading, setLoading] = useState(true)
+    const { showToast } = useToast()
 
   useEffect(() => {
-    const checkAdmin = async () => {
+
+    Toast()
+    checkAdmin()
+  }, [router, msg])
+    
+  const Toast = ()=>{
+    if (!msg) return null
+    const type = msg.toLowerCase().includes('success')
+    ? 'success'
+    : 'error'
+
+  showToast(msg, type, 'bottom-right')
+  }
+
+   const checkAdmin = async () => {
       const token = localStorage.getItem('token')
 
       if (!token) {
@@ -45,9 +61,6 @@ export default function CategoriesPage() {
         router.push('/login')
       }
     }
-
-    checkAdmin()
-  }, [router])
 
   const addCategory = async () => {
     setMsg('')
@@ -128,15 +141,7 @@ export default function CategoriesPage() {
 
           <FormResetButton onReset={() => setName('')} />
 
-          {msg && (
-            <p className={`text-sm text-center ${
-              msg.includes('success')
-                ? 'text-[#00f5d4]'
-                : 'text-destructive'
-            }`}>
-              {msg}
-            </p>
-          )}
+          
 
         </div>
       </div>
