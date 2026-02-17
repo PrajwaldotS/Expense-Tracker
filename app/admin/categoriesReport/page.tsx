@@ -39,15 +39,17 @@ export default function CategoriesPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:2294/api/admin/category-summary?page=${page}&pageSize=${pageSize}&search=${search}`,
+        `http://localhost:2294/api/admin/reports/categories?page=${page}&pageSize=${pageSize}&search=${search}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
+        
       )
 
       const result = await res.json()
+      
 
       if (!res.ok) {
         setCategoryTotals([])
@@ -204,7 +206,7 @@ export default function CategoriesPage() {
             <TableBody>
               {categoryTotals.map((c, index) => (
                 <TableRow
-                  key={c.category_id}
+                  key={c.categoryId}
                   className="hover:bg-muted/40 transition"
                 >
                   <TableCell className="text-muted-foreground">

@@ -25,7 +25,7 @@ import {
 import AdminDashboardShimmer from '@/components/skeletons/userReportSkeleton'
 
 
-export default function AdminDashboard() {
+export default  function AdminDashboard() {
   const router = useRouter()
   const [totalSpent, setTotalSpent] = useState(0)
   const [userTotals, setUserTotals] = useState<any[]>([])
@@ -34,7 +34,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(5)
-
+ 
  useEffect(() => {
   fetchDashboardData()
 }, [page, pageSize, search])
@@ -48,6 +48,7 @@ export default function AdminDashboard() {
 
 const fetchDashboardData = async () => {
   setLoading(true)
+  
 
   const token = localStorage.getItem('token')
 
@@ -61,23 +62,36 @@ const fetchDashboardData = async () => {
   )
 
   const result = await res.json()
-
+  
+  const formattedData = (result.data || []).map((u: any) => ({
+  user_id: u.userId,
+  name: u.userName,
+  total: u.totalAmount || 0,
+  lastExpenseDate: u.lastExpenseDate || null,
+}))
   if (!res.ok) {
     setUserTotals([])
     setTotalSpent(0)
     setLoading(false)
     return
   }
+  const platformTotal = formattedData.reduce(
+  (sum: number, u: any) => sum + u.total,
+  0
+)
 
-  setUserTotals(result.data || [])
-  setTotalSpent(result.totalPlatformExpense || 0)
+  setUserTotals(formattedData)
+  setTotalSpent(platformTotal)
   setLoading(false)
 }
 
 
-  const filteredUsers = userTotals.filter((u) =>
-    u.name.toLowerCase().includes(search.toLowerCase())
-  )
+
+ const filteredUsers = userTotals.filter((u) =>
+  (u?.name || '').toLowerCase().includes(search.toLowerCase())
+)
+
+  console.log("search:", search, "filteredUsers:", filteredUsers)
 
   const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize))
   const paginatedUsers = filteredUsers.slice((page - 1) * pageSize, page * pageSize)
@@ -95,6 +109,7 @@ const fetchDashboardData = async () => {
     </ProtectedRoute>
   )
 }
+console.log("Rendering with data:", { totalSpent, userTotals, page, pageSize, search })
 
   return (
     <ProtectedRoute>
@@ -116,7 +131,7 @@ const fetchDashboardData = async () => {
           <div>
             <p className="text-sm text-muted-foreground">Total Platform Expenses</p>
             <p className="text-2xl font-semibold text-foreground">
-              ₹ {totalSpent.toLocaleString('en-IN')}
+              ₹ {(totalSpent || 0).toLocaleString('en-IN')}
             </p>
           </div>
         </div>
@@ -205,11 +220,11 @@ const fetchDashboardData = async () => {
                     {u.name}
                   </TableCell>
                   <TableCell className="font-semibold text-[#f15bb5]">
-                    ₹ {u.total.toLocaleString('en-IN')}
+                    ₹ {(u.total || 0).toLocaleString('en-IN')}
                   </TableCell>
                   <TableCell>
-                    {u.last_expense_date
-                      ? new Date(u.last_expense_date).toLocaleDateString()
+                    {u.lastExpenseDate
+                      ? new Date(u.lastExpenseDate).toLocaleDateString()
                       : 'N/A'}
                   </TableCell>
                 </TableRow>

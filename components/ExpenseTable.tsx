@@ -135,6 +135,8 @@ export default function ExpenseTable() {
             <TableRow>
               <TableHead>Amount</TableHead>
               <TableHead>Category</TableHead>
+              <TableHead>Zone</TableHead>
+              <TableHead>Receipt</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Date</TableHead>
             </TableRow>
@@ -148,15 +150,29 @@ export default function ExpenseTable() {
                 </TableCell>
                 <TableCell>
                   <span className="px-2 py-1 text-xs rounded-md bg-[#9b5de5]/10 text-[#9b5de5]">
-                    {e.category_name}
+                    {e.category.name}
                   </span>
+                </TableCell>
+                <TableCell>
+                  <span className="px-2 py-1 text-xs rounded-md bg-[#9b5de5]/10 text-[#9b5de5]">
+                    {e.zone.name}
+                  </span>
+                </TableCell>
+                <TableCell className='cursor-pointer'>
+                  {e.receiptUrl ? (
+                    <a href={e.receiptUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                      View Receipt
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">No receipt</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {e.description}
                 </TableCell>
                 <TableCell>
-                  {e.expense_date
-                    ? new Date(e.expense_date).toLocaleDateString()
+                  {e.createdAt
+                    ? new Date(e.createdAt).toLocaleDateString()
                     : '—'}
                 </TableCell>
               </TableRow>
