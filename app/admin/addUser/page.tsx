@@ -4,6 +4,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FiEye, FiEyeOff, FiLock, FiPhone } from 'react-icons/fi'
+import { useToast } from '@/components/toast-1'
 
 type Gender = 'male' | 'female' | 'other'
 type IdProofType = 'aadhaar' | 'pan' | 'driving_license'
@@ -26,10 +27,21 @@ export default function CreateUserPage() {
   const [idProofFile, setIdProofFile] = useState<File | null>(null)
 
   const [msg, setMsg] = useState('')
+  const { showToast } = useToast()
 
   /* ---------------- ADMIN CHECK ---------------- */
   useEffect(() => {
-    const checkAdmin = async () => {
+    if (!msg) return
+
+  const type = msg.toLowerCase().includes('success')
+    ? 'success'
+    : 'error'
+
+  showToast(msg, type, 'bottom-right')
+
+    checkAdmin()
+  }, [router , msg])
+  const checkAdmin = async () => {
       const token = localStorage.getItem('token')
 
       if (!token) {
@@ -60,9 +72,6 @@ export default function CreateUserPage() {
         router.push('/login')
       }
     }
-
-    checkAdmin()
-  }, [router])
 
   /* ---------------- CREATE USER ---------------- */
   const createUser = async () => {
@@ -228,15 +237,7 @@ export default function CreateUserPage() {
             Create User
           </button>
 
-          {msg && (
-            <p className={`text-sm text-center ${
-              msg.includes('success')
-                ? 'text-green-500'
-                : 'text-red-500'
-            }`}>
-              {msg}
-            </p>
-          )}
+          
         </div>
       </div>
     </ProtectedRoute>
