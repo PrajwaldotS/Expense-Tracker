@@ -38,29 +38,46 @@ export function AppSidebar() {
   const pathname = usePathname()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [role, setRole] = useState<string | null>(null)
-
+  const [loading, setLoading] = useState(true)
+  const [name, setName] = useState<string | null>(null)
   useEffect(() => {
-    const loadUser = async () => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token')
+
+      if (!token) {
+        setIsLoggedIn(false)
+        setLoading(false)
+        return
+      }
+
       try {
-        const res = await fetch('/api/auth/me', {
-          credentials: 'include',
+        const res = await fetch('http://localhost:2294/api/users/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         })
 
         if (!res.ok) {
+          localStorage.removeItem('token')
           setIsLoggedIn(false)
+          setLoading(false)
           return
         }
 
         const data = await res.json()
 
+        setRole(data.role)
+        setName(data.name || data.email?.split('@')[0] || 'User')
         setIsLoggedIn(true)
-        setRole(data.role || 'user')
-      } catch (err) {
+      } catch (error) {
+        console.error(error)
         setIsLoggedIn(false)
+      } finally {
+        setLoading(false)
       }
     }
 
-    loadUser()
+    fetchUser()
   }, [])
 
   const isGroupActive = (paths: string[]) => {
@@ -97,7 +114,7 @@ export function AppSidebar() {
             {/* USERS */}
             <AccordionItem value="users" className="border-none">
               <AccordionTrigger className={`px-3 py-2 ${isGroupActive(['/admin/addUser', '/admin/manageUsers']) ? 'text-brand' : 'text-muted-foreground'}`}>
-                <FaUser className="mr-2 text-brand" size={20} />
+                <FaUser className="mr-2 text-brand rotate-0!" size={20} />
                 <span>User</span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
@@ -109,7 +126,7 @@ export function AppSidebar() {
             {/* CATEGORIES */}
             <AccordionItem value="categories" className="border-none">
               <AccordionTrigger className={`px-3 py-2 ${isGroupActive(['/admin/addCategories', '/admin/manageCategories']) ? 'text-brand' : 'text-muted-foreground'}`}>
-                <BiSolidCategory className="mr-2 text-brand" size={20} />
+                <BiSolidCategory className="mr-2 text-brand rotate-0!" size={20} />
                 <span>Categories</span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
@@ -121,7 +138,7 @@ export function AppSidebar() {
             {/* EXPENSES */}
             <AccordionItem value="expenses" className="border-none">
               <AccordionTrigger className={`px-3 py-2 ${isGroupActive(['/admin/addExpenses', '/admin/manageExpenses']) ? 'text-brand' : 'text-muted-foreground'}`}>
-                <FaMoneyBillTrendUp className="mr-2 text-brand" size={20} />
+                <FaMoneyBillTrendUp className="mr-2 text-brand rotate-0!" size={20} />
                 <span>Expenses</span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
@@ -133,7 +150,7 @@ export function AppSidebar() {
             {/* ZONES */}
             <AccordionItem value="zones" className="border-none">
               <AccordionTrigger className={`px-3 py-2 ${isGroupActive(['/admin/addZone', '/admin/manageZones']) ? 'text-brand' : 'text-muted-foreground'}`}>
-                <RiTimeZoneLine className="mr-2 text-brand" size={20} />
+                <RiTimeZoneLine className="mr-2 text-brand rotate-0!" size={20} />
                 <span>Zones</span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">
@@ -145,7 +162,7 @@ export function AppSidebar() {
             {/* REPORTS */}
             <AccordionItem value="reports" className="border-none">
               <AccordionTrigger className={`px-3 py-2 ${isGroupActive(['/admin/usersReport', '/admin/categoriesReport', '/admin/zoneReport']) ? 'text-brand' : 'text-muted-foreground'}`}>
-                <FiBarChart2 className="mr-2 text-brand" size={20} />
+                <FiBarChart2 className="mr-2 text-brand rotate-0!" size={20} />
                 <span>Reports</span>
               </AccordionTrigger>
               <AccordionContent className="space-y-1 pt-1">

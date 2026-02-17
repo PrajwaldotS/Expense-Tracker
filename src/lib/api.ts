@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:2295"
+const API_BASE = "http://localhost:2294"
 
 export const apiFetch = async (
   endpoint: string,
