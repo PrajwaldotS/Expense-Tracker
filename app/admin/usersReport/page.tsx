@@ -53,7 +53,7 @@ const fetchDashboardData = async () => {
   const token = localStorage.getItem('token')
 
   const res = await fetch(
-    `http://localhost:2294/api/admin/reports/users?page=${page}&pageSize=${pageSize}&search=${search}`,
+    `http://localhost:2294/api/dashboard/reports/users?page=${page}&pageSize=${pageSize}&search=${search}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

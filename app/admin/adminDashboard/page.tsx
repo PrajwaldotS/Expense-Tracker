@@ -25,7 +25,7 @@ export default function AdminDashboard() {
       }
 
       try {
-        const res = await fetch('http://localhost:2294/api/admin/dashboard', {
+        const res = await fetch('http://localhost:2294/api/dashboard/dashboardReport', {
           headers: {
             Authorization: `Bearer ${token}`
           }
