@@ -121,7 +121,7 @@ const loadZones = async (userId: string) => {
 
   // ✅ Get assigned zones for user
   const userZonesRes = await fetch(
-    `http://localhost:2294/api/admin/user-zones/${userId}`,
+    `http://localhost:2294/api/zones/user-zones/${userId}`,
     {
       headers: { Authorization: `Bearer ${token}` }
     }
@@ -135,12 +135,12 @@ const loadZones = async (userId: string) => {
 }
 
 
- const toggleZone = async (zoneId: string) => {
+ const toogleZone = async (zoneId: string) => {
   if (!selectedUser) return
 
   const token = localStorage.getItem('token')
 
-  await fetch('http://localhost:2294/api/admin/toggle-zone', {
+  await fetch('http://localhost:2294/api/zones/toogle-zone', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -567,7 +567,7 @@ const loadZones = async (userId: string) => {
                   <Button
                     size="sm"
                     variant={has ? 'destructive' : 'default'}
-                    onClick={() => toggleZone(z.id)}
+                    onClick={() => toogleZone(z.id)}
                   >
                     {has ? 'Remove' : 'Add'}
                   </Button>
