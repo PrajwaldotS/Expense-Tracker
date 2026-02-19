@@ -39,7 +39,7 @@ export default function CategoriesPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:2294/api/admin/dashboard/categories?page=${page}&pageSize=${pageSize}&search=${search}`,
+        `http://localhost:2294/api/dashboard/reports/categories?page=${page}&pageSize=${pageSize}&search=${search}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
