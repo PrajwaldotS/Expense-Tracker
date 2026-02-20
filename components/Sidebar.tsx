@@ -1,11 +1,8 @@
 'use client'
-
-import Logout from './Logout'
 import { useEffect, useState } from 'react'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
@@ -107,7 +104,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-3 space-y-2">
-
+        {/* Admin based sidebar */}
         {role === 'admin' && (
           <Accordion type="single" collapsible className="w-full space-y-2">
 
@@ -174,7 +171,7 @@ export function AppSidebar() {
 
           </Accordion>
         )}
-
+          {/* User based Dashboard */}
         {role === 'user' && (
           <SidebarGroup  className={`px-3 py-2  ${isGroupActive(['/user', '/user/my-expenses', '/admin/expenses/add']) ? 'text-brand' : 'text-muted-foreground'}`} >
             <NavItem href="/user" label="Dashboard" icon={MdOutlineSpaceDashboard} pathname={pathname} />
