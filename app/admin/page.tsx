@@ -14,7 +14,7 @@ export default function AdminDashboard() {
   const [zoneTotal, setZoneTotal] = useState(0)
   const [loading, setLoading] = useState(true)
 
-  // 🔒 Protect admin route + fetch dashboard
+
   useEffect(() => {
     const fetchDashboard = async () => {
       const token = localStorage.getItem('token')
